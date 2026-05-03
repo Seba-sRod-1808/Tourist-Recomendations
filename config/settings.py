@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_neomodel',
+    'recomendations'
 ]
 
 MIDDLEWARE = [
@@ -78,6 +80,15 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+NEOMODEL_NEO4J_BOLT_URL= 'bolt://neo4j:password@localhost:7687'
+
+NEOMODEL_SIGNALS = True
+
+NEOMODELS_FORCE_TIMEZONE = True
+
+NEOMODELS_MAX_POOL_SIZE = 50
+
 
 
 # Password validation
