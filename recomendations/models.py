@@ -40,7 +40,7 @@ class Student(StructuredNode):
     name = StringProperty()
     budget = FloatProperty()
 
-    visited = RelationshipTo('Place', 'VISITED', model=VisitedRel)
+    visited = RelationshipTo('Destination', 'VISITED', model=VisitedRel)
     likes = RelationshipTo('Category', 'LIKES', model=LikesRel)
     studies = RelationshipTo('Career', 'STUDIES')
 
@@ -50,7 +50,7 @@ class City(StructuredNode):
     country = StringProperty()
 
 
-class Place(StructuredNode):
+class Destination(StructuredNode):
     uid = UniqueIdProperty()
 
     name = StringProperty()
@@ -61,7 +61,7 @@ class Place(StructuredNode):
     categories = RelationshipTo('Category', 'HAS_CATEGORY')
     tags = RelationshipTo('Tag', 'HAS_TAG')
 
-    nearby = RelationshipTo('Place', 'NEAR', model=NearRel)
+    nearby = RelationshipTo('Destination', 'NEAR', model=NearRel)
 
     preferred_by = RelationshipFrom('Career', 'PREFERS', model=PreferenceRel)
     visited_by = RelationshipFrom('Student', 'VISITED', model=VisitedRel)
@@ -71,13 +71,13 @@ class Category(StructuredNode):
     name = StringProperty(unique_index=True)
 
     liked_by = RelationshipFrom('Student', 'LIKES', model=LikesRel)
-    places = RelationshipFrom('Place', 'HAS_CATEGORY')
+    destinations = RelationshipFrom('Destination', 'HAS_CATEGORY')
 
 
 class Career(StructuredNode):
     name = StringProperty(unique_index=True)
 
-    prefers = RelationshipTo('Place', 'PREFERS', model=PreferenceRel)
+    prefers = RelationshipTo('Destination', 'PREFERS', model=PreferenceRel)
 
     students = RelationshipFrom('Student', 'STUDIES')
 
@@ -85,4 +85,4 @@ class Career(StructuredNode):
 class Tag(StructuredNode):
     name = StringProperty(unique_index=True)
 
-    places = RelationshipFrom('Place', 'HAS_TAG')
+    destinations = RelationshipFrom('Destination', 'HAS_TAG')
