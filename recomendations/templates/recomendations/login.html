@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Iniciar Sesión</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'DM Sans', sans-serif; background-color: #F4F1EB; color: #2C2C2A; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+  .login-container { background: #fff; padding: 3rem; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; border: 1px solid #E8E5DC; text-align: center; }
+  h1 { font-family: 'Fraunces', serif; font-size: 32px; color: #3B6D11; margin-bottom: 10px; }
+  p { color: #888780; font-size: 14px; margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.25rem; text-align: left; position: relative; }
+  label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; color: #444441; text-transform: uppercase; }
+  
+  /* Estilos de los inputs */
+  input { width: 100%; padding: 12px; border: 1px solid #D3D1C7; border-radius: 10px; font-size: 14px; background: #F9F8F6; outline: none; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+  input:focus { border-color: #639922; background: #fff; }
+  
+  /* Estilos para el botón de ver contraseña */
+  .password-wrapper { position: relative; }
+  .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888780; font-size: 13px; padding: 0; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .toggle-password:hover { color: #3B6D11; }
+  
+  /* Enlaces de recuperar contraseña y registro */
+  .forgot-password { display: block; text-align: right; font-size: 12px; color: #639922; text-decoration: none; margin-top: 8px; font-weight: 500; transition: color 0.2s; }
+  .forgot-password:hover { color: #27500A; text-decoration: underline; }
+  
+  .btn-login { width: 100%; background: #3B6D11; color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 1rem; transition: background 0.2s; font-family: 'DM Sans', sans-serif;}
+  .btn-login:hover { background: #27500A; }
+  
+  .register-link { margin-top: 1.5rem; font-size: 13.5px; color: #5F5E5A; }
+  .register-link a { color: #3B6D11; font-weight: 500; text-decoration: none; }
+  .register-link a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <h1>U<span>tourist</span></h1>
+  <p>Encuentra el destino ideal para tu próximo viaje</p>
+  
+  <form action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <input type="email" name="email" placeholder="estudiante@correo.com" required>
+    </div>
+    
+    <div class="form-group">
+      <label>Contraseña</label>
+      <div class="password-wrapper">
+        <input type="password" name="password" id="password" placeholder="••••••••" required>
+        <button type="button" class="toggle-password" onclick="toggleVisibility()">Mostrar</button>
+      </div>
+      <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+    </div>
+    
+    <button type="submit" class="btn-login">Ingresar al Sistema</button>
+  </form>
+  
+  <div class="register-link">
+    ¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a>
+  </div>
+</div>
+
+<script>
+  // Función con JavaScript para alternar entre ver/ocultar la contraseña
+  function toggleVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.querySelector('.toggle-password');
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleBtn.textContent = 'Ocultar';
+    } else {
+      passwordInput.type = 'password';
+      toggleBtn.textContent = 'Mostrar';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from django.urls import path
-from .. import views  # Los dos puntos permiten subir un nivel para encontrar views.py
+from . import views  
 
 urlpatterns = [
     # Ruta principal (Landing / Login)
@@ -13,4 +13,8 @@ urlpatterns = [
     
     # Ruta para el panel de administración
     path('admin-destinos/', views.admin_view, name='panel_admin'),
+
+    # Ruta de recuperación de contraseña
+    path('recuperar-contrasena/', views.recuperar_view, name='recuperar_contrasena'),
+
 ]

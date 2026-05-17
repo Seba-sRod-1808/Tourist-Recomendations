@@ -13,6 +13,12 @@ def registro_view(request):
         return redirect('recommendations')
     return render(request, 'recomendations/registro.html')
 
+def recuperar_view(request):
+    if request.method == 'POST':
+        # Aquí procesarías el envío del correo de recuperación en el futuro
+        return redirect('login')
+    return render(request, 'recomendations/recuperar.html')
+
 def mostrar_recomendaciones(request):
     # Intentamos jalar los destinos reales guardados en Neo4j mediante tu servicio
     recommendations = get_recommendations(student_uid=None, limit=6)
