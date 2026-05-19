@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Crear Perfil Universitario</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-600: #3B6D11; --green-800: #27500A;
+    --gray-50: #F1EFE8; --gray-400: #888780; --gray-900: #2C2C2A;
+    --radius-md: 10px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background-color: #F4F1EB; color: var(--gray-900); padding: 2rem 1rem; margin: 0; display: flex; justify-content: center; }
+  .survey-container { background: #fff; padding: 3rem; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 600px; border: 1px solid #E8E5DC; }
+  h1 { font-family: 'Fraunces', serif; font-size: 32px; color: var(--green-600); margin-bottom: 8px; text-align: center; }
+  p.subtitle { text-align: center; color: var(--gray-400); font-size: 14px; margin-bottom: 2.5rem; line-height: 1.5; }
+  
+  .section-title { font-family: 'Fraunces', serif; font-size: 18px; color: var(--gray-900); margin: 2rem 0 1rem; border-bottom: 1px solid #E8E5DC; padding-bottom: 6px; }
+  .form-group { margin-bottom: 1.5rem; }
+  label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; color: #444441; }
+  
+  input[type="text"], input[type="email"], input[type="password"], select { 
+    width: 100%; padding: 11px 14px; border: 1px solid #D3D1C7; border-radius: var(--radius-md); 
+    font-family: 'DM Sans', sans-serif; font-size: 14px; background: #F9F8F6; outline: none; box-sizing: border-box; transition: all 0.2s; 
+  }
+  input:focus, select:focus { border-color: var(--green-600); background: #fff; }
+  
+  .grid-choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .choice-label { 
+    display: flex; align-items: center; gap: 8px; font-size: 13.5px; background: #F9F8F6; 
+    padding: 10px 14px; border-radius: var(--radius-md); cursor: pointer; border: 1px solid #D3D1C7; transition: all 0.15s; 
+  }
+  .choice-label:hover { border-color: var(--green-600); background: var(--green-50); }
+  .choice-label input { accent-color: var(--green-600); }
+
+  .scale-group { display: flex; justify-content: space-between; align-items: center; background: #F9F8F6; padding: 12px 20px; border-radius: var(--radius-md); border: 1px solid #D3D1C7; }
+  .scale-option { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--gray-400); cursor: pointer; }
+  .scale-option input { accent-color: var(--green-600); margin: 0; }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray-400); margin-top: 4px; padding: 0 4px; }
+
+  .btn-submit { width: 100%; background: var(--green-600); color: #fff; border: none; padding: 14px; border-radius: var(--radius-md); font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 2rem; transition: background 0.2s; }
+  .btn-submit:hover { background: var(--green-800); }
+  .back-to-login { text-align: center; margin-top: 1.5rem; font-size: 13.5px; }
+  .back-to-login a { color: var(--green-600); font-weight: 500; text-decoration: none; }
+  .back-to-login a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="survey-container">
+  <h1>Únete a Utourist</h1>
+  <p class="subtitle">Crea tu cuenta universitaria y descubre recomendaciones turísticas personalizadas según tus intereses y presupuesto real.</p>
+
+  <form action="{% url 'registro' %}" method="POST">
+    {% csrf_token %}
+
+    <div class="section-title">1. Datos de Cuenta</div>
+    <div class="form-group">
+      <label>Nombre Completo</label>
+      <input type="text" name="nombre" placeholder="Tu nombre y apellido" required>
+    </div>
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <input type="email" name="email" placeholder="estudiante@correo.com" required>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+    </div>
+
+    <div class="section-title">2. Perfil Académico y Económico</div>
+    <div class="grid-choices" style="margin-bottom:1.5rem;">
+      <div>
+        <label>Universidad</label>
+        <select name="universidad" required>
+          <option value="" disabled selected>Selecciona...</option>
+          <option value="UVG">Universidad del Valle</option>
+          <option value="USAC">Universidad de San Carlos</option>
+          <option value="URL">Universidad Landívar</option>
+          <option value="UFM">Universidad Francisco Marroquín</option>
+          <option value="Otra">Otra institución</option>
+        </select>
+      </div>
+      <div>
+        <label>Año de Carrera</label>
+        <select name="anio_carrera" required>
+          <option value="" disabled selected>Selecciona...</option>
+          <option value="1ro">1er Año</option>
+          <option value="2do">2do Año</option>
+          <option value="3ro">3er Año</option>
+          <option value="4to">4to Año o más</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>¿Cuál es tu carrera?</label>
+      <input type="text" name="carrera" placeholder="Ej. Ingeniería en Ciencias de la Computación" required>
+    </div>
+    <div class="form-group">
+      <label>Presupuesto estimado para un viaje de fin de semana</label>
+      <select name="presupuesto" required>
+        <option value="" disabled selected>Selecciona un rango...</option>
+        <option value="Menos de Q200">Económico (Menos de Q200)</option>
+        <option value="Q200–Q500">Moderado (Q200 – Q500)</option>
+        <option value="Q500–Q1000">Estándar (Q500 – Q1,000)</option>
+        <option value="Más de Q1000">Premium (Más de Q1,000)</option>
+      </select>
+    </div>
+
+    <div class="section-title">3. Preferencias de Viaje</div>
+    <div class="form-group">
+      <label>¿Qué tipo de destinos prefieres? (Selecciona tus favoritos)</label>
+      <div class="grid-choices">
+        <label class="choice-label"><input type="checkbox" name="categorias" value="naturaleza">  Naturaleza</label>
+        <label class="choice-label"><input type="checkbox" name="categorias" value="historia">  Historia / Arqueología</label>
+        <label class="choice-label"><input type="checkbox" name="categorias" value="aventura">  Aventura</label>
+        <label class="choice-label"><input type="checkbox" name="categorias" value="playa">  Playas / Ríos</label>
+        <label class="choice-label"><input type="checkbox" name="categorias" value="cultura">  Cultura / Mercados</label>
+        <label class="choice-label"><input type="checkbox" name="categorias" value="gastronomia">  Gastronomía</label>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>¿Con quién sueles viajar habitualmente? (Puedes seleccionar varios)</label>
+      <div class="grid-choices">
+        <label class="choice-label"><input type="checkbox" name="compania" value="Amigos">  Amigos de la universidad</label>
+        <label class="choice-label"><input type="checkbox" name="compania" value="Familia">  Familia</label>
+        <label class="choice-label"><input type="checkbox" name="compania" value="Pareja">  Pareja</label>
+        <label class="choice-label"><input type="checkbox" name="compania" value="Solo">  Solo</label>
+      </div>
+    </div>
+
+    <div class="section-title">4. Importancia de Factores (Escala 1 al 5)</div>
+    
+    <div class="form-group">
+      <label>¿Qué tan importante es la <strong>distancia</strong> desde tu ubicación?</label>
+      <div class="scale-group">
+        <label class="scale-option"><span>1</span><input type="radio" name="w_distancia" value="1"></label>
+        <label class="scale-option"><span>2</span><input type="radio" name="w_distancia" value="2"></label>
+        <label class="scale-option"><span>3</span><input type="radio" name="w_distancia" value="3" checked></label>
+        <label class="scale-option"><span>4</span><input type="radio" name="w_distancia" value="4"></label>
+        <label class="scale-option"><span>5</span><input type="radio" name="w_distancia" value="5"></label>
+      </div>
+      <div class="scale-labels"><span>Me da igual si es lejos</span><span>Debe ser muy cerca</span></div>
+    </div>
+
+    <div class="form-group">
+      <label>¿Qué tan importante es la <strong>popularidad</strong> del lugar?</label>
+      <div class="scale-group">
+        <label class="scale-option"><span>1</span><input type="radio" name="w_popularidad" value="1"></label>
+        <label class="scale-option"><span>2</span><input type="radio" name="w_popularidad" value="2"></label>
+        <label class="scale-option"><span>3</span><input type="radio" name="w_popularidad" value="3" checked></label>
+        <label class="scale-option"><span>4</span><input type="radio" name="w_popularidad" value="4"></label>
+        <label class="scale-option"><span>5</span><input type="radio" name="w_popularidad" value="5"></label>
+      </div>
+      <div class="scale-labels"><span>Prefiero lugares secretos</span><span>Prefiero los más conocidos</span></div>
+    </div>
+
+    <button type="submit" class="btn-submit">Finalizar Registro y Ver Recomendaciones →</button>
+  </form>
+
+  <div class="back-to-login">
+    ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+  </div>
+</div>
+
+</body>
+</html>
