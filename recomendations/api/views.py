@@ -84,3 +84,6 @@ def mostrar_recomendaciones(request):
 
 def admin_view(request):
     return render(request, 'recomendations/admin_panel.html')
+
+def landing_view(request):
+    return render(request, 'recomendations/landing.html')

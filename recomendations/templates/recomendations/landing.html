@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Viajes a tu medida universitaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
+    --gray-50: #F1EFE8; --gray-400: #888780; --gray-600: #5F5E5A; --gray-900: #2C2C2A;
+    --radius-md: 12px; --radius-lg: 24px;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background-color: #F4F1EB; color: var(--gray-900); margin: 0; padding: 0; overflow-x: hidden; }
+  
+  /* Navbar */
+  nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 70px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  .nav-auth { display: flex; gap: 12px; }
+  .btn-nav-login { text-decoration: none; color: var(--gray-900); padding: 10px 20px; font-size: 14px; font-weight: 500; border-radius: var(--radius-md); transition: all 0.2s; }
+  .btn-nav-login:hover { background: var(--gray-50); }
+  .btn-nav-register { text-decoration: none; background: var(--green-600); color: #fff; padding: 10px 20px; font-size: 14px; font-weight: 500; border-radius: var(--radius-md); transition: all 0.2s; box-shadow: 0 4px 12px rgba(59,109,17,0.15); }
+  .btn-nav-register:hover { background: var(--green-800); transform: translateY(-1px); }
+
+  /* Hero Section */
+  .hero { max-width: 1000px; margin: 0 auto; padding: 6rem 2rem 4rem; text-align: center; }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: 56px; line-height: 1.1; color: var(--gray-900); margin: 0 0 1.5rem; letter-spacing: -1px; }
+  .hero h1 span { color: var(--green-600); }
+  .hero p { font-size: 18px; color: var(--gray-400); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6; }
+  .hero-ctas { display: flex; gap: 16px; justify-content: center; }
+  .btn-hero-primary { text-decoration: none; background: var(--green-600); color: #fff; padding: 16px 32px; font-size: 16px; font-weight: 500; border-radius: var(--radius-md); transition: all 0.2s; box-shadow: 0 6px 20px rgba(59,109,17,0.2); }
+  .btn-hero-primary:hover { background: var(--green-800); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,109,17,0.3); }
+
+  /* Section: Características Interactivas */
+  .features-section { max-width: 1100px; margin: 4rem auto; padding: 0 2rem; }
+  .section-heading { font-family: 'Fraunces', serif; font-size: 32px; text-align: center; color: var(--gray-900); margin-bottom: 3rem; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  
+  /* Tarjetas con interactividad en Hover */
+  .feature-card { background: #fff; padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid #E8E5DC; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; top: 0; }
+  .feature-card:hover { top: -8px; border-color: var(--green-100); box-shadow: 0 15px 35px rgba(44,44,42,0.06); }
+  .feature-icon { font-size: 32px; margin-bottom: 1rem; display: inline-block; }
+  .feature-card h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--gray-900); margin: 0 0 10px; }
+  .feature-card p { font-size: 14px; color: var(--gray-400); line-height: 1.5; margin: 0; }
+
+  /* Section: Pasos */
+  .steps-section { background: #fff; border-top: 1px solid #E8E5DC; border-bottom: 1px solid #E8E5DC; padding: 5rem 2rem; margin-top: 6rem; }
+  .steps-container { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; position: relative; }
+  .step-item { flex: 1; text-align: center; padding: 0 1rem; position: relative; z-index: 2; }
+  .step-number { width: 40px; height: 40px; background: var(--green-50); color: var(--green-600); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin: 0 auto 1rem; border: 1px solid var(--green-100); }
+  .step-item h4 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0 0 8px; color: var(--gray-900); }
+  .step-item p { font-size: 13.5px; color: var(--gray-400); margin: 0; line-height: 1.5; }
+
+  /* Footer */
+  footer { text-align: center; padding: 3rem 2rem; color: var(--gray-400); font-size: 13px; }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 40px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps-container { flex-direction: column; gap: 2.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand">Utourist</a>
+  <div class="nav-auth">
+    <a href="{% url 'login' %}" class="btn-nav-login">Iniciar Sesión</a>
+    <a href="{% url 'registro' %}" class="btn-nav-register">Crear Cuenta</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Tu próximo destino ideal, adaptado a tu <span>presupuesto universitario</span></h1>
+  <p>Descubre lugares increíbles en Guatemala mediante nuestro sistema inteligente de recomendación. Diseñado por y para estudiantes.</p>
+  <div class="hero-ctas">
+    <a href="{% url 'registro' %}" class="btn-hero-primary">Empezar a explorar gratis →</a>
+  </div>
+</div>
+
+<div class="features-section">
+  <h2 class="section-heading">¿Por qué usar Utourist?</h2>
+  <div class="features-grid">
+    
+    <div class="feature-card">
+      <span class="feature-icon">🧠</span>
+      <h3>Recomendaciones Híbridas</h3>
+      <p>Cruzamos tus gustos personales y tu presupuesto exacto mediante algoritmos basados en grafos para darte opciones perfectas.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-icon">💰</span>
+      <h3>Filtro Económico Real</h3>
+      <p>Sabemos que el presupuesto de un estudiante importa. Olvídate de sorpresas; mira destinos que se ajustan a tu bolsillo.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="feature-icon">🎒</span>
+      <h3>Enfoque Colectivo</h3>
+      <p>Mira qué lugares están siendo tendencia entre otros compañeros de tu misma carrera o de universidades cercanas.</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="steps-section">
+  <h2 class="section-heading">¿Cómo funciona el sistema?</h2>
+  <div class="steps-container">
+    
+    <div class="step-item">
+      <div class="step-number">1</div>
+      <h4>Crea tu Perfil</h4>
+      <p>Regístrate de forma rápida ingresando tus datos básicos de estudiante.</p>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">2</div>
+      <h4>Responde la Encuesta</h4>
+      <p>Cuéntanos con quién viajas, tus tipos de destinos favoritos y qué tan importante es la distancia para ti.</p>
+    </div>
+
+    <div class="step-item">
+      <div class="step-number">3</div>
+      <h4>¡Recibe tu Match!</h4>
+      <p>Nuestro motor de base de datos procesa tus variables y te despliega los mejores destinos turísticos listos para visitar.</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 Utourist. Todos los derechos reservados. Desarrollado para la comunidad universitaria de Guatemala.</p>
+</footer>
+
+</body>
+</html>
