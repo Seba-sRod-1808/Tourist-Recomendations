@@ -7,12 +7,6 @@ def login_view(request):
         return redirect('registro')
     return render(request, 'recomendations/login.html')
 
-def registro_view(request):
-    if request.method == 'POST':
-        # Al guardar los intereses, redirige a las recomendaciones finales
-        return redirect('recommendations')
-    return render(request, 'recomendations/registro.html')
-
 def recuperar_view(request):
     if request.method == 'POST':
         # Aquí procesarías el envío del correo de recuperación en el futuro
@@ -87,3 +81,13 @@ def admin_view(request):
 
 def landing_view(request):
     return render(request, 'recomendations/landing.html')
+
+def registro_view(request):
+    if request.method == 'POST':
+        return redirect('onboarding')
+    return render(request, 'recomendations/registro.html')
+
+def onboarding_view(request):
+    if request.method == 'POST':
+        return redirect('recommendations')
+    return render(request, 'recomendations/onboarding.html')
