@@ -91,3 +91,38 @@ def onboarding_view(request):
     if request.method == 'POST':
         return redirect('recommendations')
     return render(request, 'recomendations/onboarding.html')
+
+def mostrar_recomendaciones(request):
+    # Simulación de datos para la interfaz (luego vendrán de Neo4j)
+    recommendations = [
+        {
+            'name': 'Antigua Guatemala', 
+            'cost': 'Q550', 
+            'tag': 'Colonial', 
+            'image': 'https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop'
+        },
+        {
+            'name': 'Lago Atitlán', 
+            'cost': 'Q400', 
+            'tag': 'Naturaleza', 
+            'image': 'https://images.unsplash.com/photo-1582424075549-b5cfccda7950?q=80&w=600&auto=format&fit=crop'
+        },
+        {
+            'name': 'Semuc Champey', 
+            'cost': 'Q350', 
+            'tag': 'Aventura', 
+            'image': 'https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop'
+        },
+        {
+            'name': 'Tikal, Petén', 
+            'cost': 'Q600', 
+            'tag': 'Historia', 
+            'image': 'https://images.unsplash.com/photo-1512556798208-148886470870?q=80&w=600&auto=format&fit=crop'
+        }
+    ]
+
+    context = {
+        'user_name': 'USUARIO1', # aqui va a ir el nombre del usuario que se logueo, por ahora es un placeholder
+        'recommendations': recommendations
+    }
+    return render(request, 'recomendations/recomendaciones.html', context)
