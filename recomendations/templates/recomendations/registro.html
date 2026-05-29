@@ -27,6 +27,14 @@
   <h1>Crear tu cuenta</h1>
   <p>Únete a Utourist y empieza a explorar.</p>
   
+  {% if messages %}
+    {% for message in messages %}
+    <div style="background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:13px;">
+      {{ message }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
   <form action="{% url 'registro' %}" method="POST">
     {% csrf_token %}
     <div class="form-group">

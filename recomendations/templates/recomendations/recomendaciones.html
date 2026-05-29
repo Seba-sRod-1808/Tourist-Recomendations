@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Tus Recomendaciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
+    --gray-50: #F1EFE8; --gray-400: #888780; --gray-600: #5F5E5A; --gray-900: #2C2C2A;
+    --radius-md: 12px; --radius-lg: 20px;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; }
+
+  nav {
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  .nav-user { display: flex; align-items: center; gap: 16px; font-size: 14px; color: var(--gray-600); }
+  .nav-user span { font-weight: 500; color: var(--gray-900); }
+  .btn-logout {
+    text-decoration: none; color: var(--gray-600); font-size: 13px; font-weight: 500;
+    padding: 8px 16px; border-radius: var(--radius-md); border: 1px solid #D3D1C7;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { background: #fff; color: var(--gray-900); }
+
+  .page-header { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 1.5rem; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); }
+  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; }
+
+  {% if prefs.categorias %}
+  .prefs-bar {
+    max-width: 1100px; margin: 0 auto 1rem; padding: 0 2rem;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .prefs-label { font-size: 13px; color: var(--gray-400); }
+  .pref-tag {
+    background: var(--green-50); color: var(--green-600); border: 1px solid var(--green-100);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; text-transform: capitalize;
+  }
+  {% endif %}
+
+  .grid {
+    max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  }
+
+  .card {
+    background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
+    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(44,44,42,0.08); }
+
+  .card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+
+  .card-body { padding: 1.25rem; }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; }
+  .card-tag {
+    background: var(--green-50); color: var(--green-600); border-radius: 20px;
+    padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-left: 8px;
+  }
+
+  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 12px; }
+  .card-cost strong { color: var(--gray-900); font-size: 15px; }
+
+  .score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .score-bar-wrap { flex: 1; background: var(--gray-50); border-radius: 4px; height: 6px; overflow: hidden; }
+  .score-bar { height: 100%; background: linear-gradient(90deg, var(--green-100), var(--green-600)); border-radius: 4px; }
+  .score-num { font-size: 13px; font-weight: 700; color: var(--green-600); white-space: nowrap; }
+
+  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; }
+
+  .btn-card {
+    display: block; width: 100%; text-align: center; background: var(--green-600); color: #fff;
+    border: none; padding: 10px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: none; font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+  }
+  .btn-card:hover { background: var(--green-800); }
+
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .page-header h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'landing' %}" class="nav-brand">Utourist</a>
+  <div class="nav-user">
+    <span>Hola, {{ user_name }}</span>
+    <a href="{% url 'logout' %}" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Tus destinos recomendados</h1>
+  <p>{{ total }} destino{{ total|pluralize }} seleccionado{{ total|pluralize }} para tu perfil</p>
+</div>
+
+{% if prefs.categorias %}
+<div class="prefs-bar">
+  <span class="prefs-label">Basado en:</span>
+  {% for cat in prefs.categorias %}
+    <span class="pref-tag">{{ cat }}</span>
+  {% endfor %}
+  {% if prefs.presupuesto %}
+    <span class="pref-tag">{{ prefs.presupuesto }}</span>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="grid">
+  {% for dest in recommendations %}
+  <div class="card">
+    <img class="card-img" src="{{ dest.image }}" alt="{{ dest.name }}" loading="lazy">
+    <div class="card-body">
+      <div class="card-top">
+        <h2 class="card-name">{{ dest.name }}</h2>
+        <span class="card-tag">{{ dest.tag }}</span>
+      </div>
+      <p class="card-cost">Desde <strong>Q{{ dest.cost }}</strong> / fin de semana</p>
+      <div class="score-row">
+        <div class="score-bar-wrap">
+          <div class="score-bar" style="width: {{ dest.score }}%"></div>
+        </div>
+        <span class="score-num">{{ dest.score }}% match</span>
+      </div>
+      <p class="card-reason">{{ dest.match_reason }}</p>
+      <a href="#" class="btn-card">Ver detalles →</a>
+    </div>
+  </div>
+  {% empty %}
+  <p style="color: var(--gray-400); grid-column: 1/-1; text-align:center; padding: 4rem 0;">
+    No hay destinos disponibles por ahora.
+  </p>
+  {% endfor %}
+</div>
+
+</body>
+</html>

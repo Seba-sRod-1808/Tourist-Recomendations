@@ -1,128 +1,188 @@
 from django.shortcuts import render, redirect
-from recomendations.services.recomendation_service import get_recommendations
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
 
-def login_view(request):
-    if request.method == 'POST':
-        # Al presionar el botón de inicio de sesión, redirige al registro de intereses
-        return redirect('registro')
-    return render(request, 'recomendations/login.html')
+from recomendations.queries import queries as neo4j
 
-def recuperar_view(request):
-    if request.method == 'POST':
-        # Aquí procesarías el envío del correo de recuperación en el futuro
-        return redirect('login')
-    return render(request, 'recomendations/recuperar.html')
+MOCK_DESTINATIONS = [
+    {
+        'uid': '1',
+        'name': 'Antigua Guatemala',
+        'cost': 550,
+        'score': 94,
+        'category': 'cultura historia',
+        'tag': 'Colonial',
+        'match_reason': '8 estudiantes de Ingeniería con presupuesto similar lo visitaron este mes.',
+        'image': 'https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+        'uid': '2',
+        'name': 'Lago Atitlán',
+        'cost': 400,
+        'score': 91,
+        'category': 'naturaleza aventura',
+        'tag': 'Naturaleza',
+        'match_reason': 'Encaja con tu preferencia por naturaleza. Ideal para fin de semana.',
+        'image': 'https://images.unsplash.com/photo-1582424075549-b5cfccda7950?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+        'uid': '3',
+        'name': 'Semuc Champey',
+        'cost': 350,
+        'score': 87,
+        'category': 'naturaleza aventura',
+        'tag': 'Aventura',
+        'match_reason': 'Destino popular entre estudiantes universitarios en vacaciones.',
+        'image': 'https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+        'uid': '4',
+        'name': 'Tikal, Petén',
+        'cost': 600,
+        'score': 82,
+        'category': 'historia cultura naturaleza',
+        'tag': 'Historia',
+        'match_reason': 'Coincide con intereses en historia maya.',
+        'image': 'https://images.unsplash.com/photo-1512556798208-148886470870?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+        'uid': '5',
+        'name': 'Río Dulce',
+        'cost': 300,
+        'score': 79,
+        'category': 'aventura naturaleza playa',
+        'tag': 'Aventura',
+        'match_reason': 'El más económico. Popular entre estudiantes con tiempo limitado.',
+        'image': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
+    },
+    {
+        'uid': '6',
+        'name': 'Monterrico',
+        'cost': 650,
+        'score': 75,
+        'category': 'playa naturaleza',
+        'tag': 'Playa',
+        'match_reason': 'Estudiantes que visitaron Atitlán también lo califican altamente.',
+        'image': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop',
+    },
+]
 
-def mostrar_recomendaciones(request):
-    # Intentamos jalar los destinos reales guardados en Neo4j mediante tu servicio
-    recommendations = get_recommendations(student_uid=None, limit=6)
-
-    # Si Neo4j no tiene datos cargados aún, usamos el plan de respaldo con datos reales ficticios
-    if not recommendations:
-        recommendations = [
-            {
-                'uid': '1',
-                'name': 'Antigua Guatemala',
-                'cost': 550,
-                'score': 94,
-                'category': 'cultura historia',
-                'match_reason': '8 estudiantes de Ingeniería con presupuesto similar lo visitaron este mes.',
-            },
-            {
-                'uid': '2',
-                'name': 'Lago Atitlán',
-                'cost': 400,
-                'score': 91,
-                'category': 'naturaleza aventura',
-                'match_reason': 'Encaja con tu preferencia por naturaleza. Ideal para fin de semana.',
-            },
-            {
-                'uid': '3',
-                'name': 'Semuc Champey',
-                'cost': 350,
-                'score': 87,
-                'category': 'naturaleza aventura',
-                'match_reason': 'Destino popular entre estudiantes universitarios en vacaciones.',
-            },
-            {
-                'uid': '4',
-                'name': 'Tikal, Petén',
-                'cost': 400,
-                'score': 82,
-                'category': 'historia cultura naturaleza',
-                'match_reason': 'Coincide con intereses en historia maya.',
-            },
-            {
-                'uid': '5',
-                'name': 'Río Dulce',
-                'cost': 300,
-                'score': 79,
-                'category': 'aventura naturaleza playa',
-                'match_reason': 'El más económico. Popular entre estudiantes con tiempo limitado.',
-            },
-            {
-                'uid': '6',
-                'name': 'Monterrico',
-                'cost': 650,
-                'score': 75,
-                'category': 'playa naturaleza',
-                'match_reason': 'Estudiantes que visitaron Atitlán también lo califican altamente.',
-            },
-        ]
-
-    context = {
-        'recommendations': recommendations,
-        'total': len(recommendations),
-    }
-    return render(request, 'recomendations/recomendaciones.html', context)
-
-def admin_view(request):
-    return render(request, 'recomendations/admin_panel.html')
 
 def landing_view(request):
+    if request.user.is_authenticated:
+        return redirect('recommendations')
     return render(request, 'recomendations/landing.html')
 
-def registro_view(request):
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('recommendations')
     if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
+        if user is not None:
+            login(request, user)
+            return redirect('recommendations')
+        messages.error(request, 'Correo o contraseña incorrectos.')
+    return render(request, 'recomendations/login.html')
+
+
+def registro_view(request):
+    if request.user.is_authenticated:
+        return redirect('recommendations')
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Ya existe una cuenta con ese correo.')
+            return render(request, 'recomendations/registro.html')
+        user = User.objects.create_user(username=email, email=email, password=password)
+        parts = nombre.split(' ', 1)
+        user.first_name = parts[0]
+        user.last_name = parts[1] if len(parts) > 1 else ''
+        user.save()
+        login(request, user)
+        try:
+            neo4j.create_student(user.id, nombre)
+        except Exception as e:
+            print(f"Neo4j create_student error: {e}")
         return redirect('onboarding')
     return render(request, 'recomendations/registro.html')
 
+
+def recuperar_view(request):
+    if request.method == 'POST':
+        messages.success(request, 'Si ese correo está registrado, recibirás las instrucciones pronto.')
+        return redirect('recuperar_contrasena')
+    return render(request, 'recomendations/recuperar.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('landing')
+
+
+@login_required(login_url='login')
 def onboarding_view(request):
     if request.method == 'POST':
+        prefs = {
+            'universidad': request.POST.get('universidad', ''),
+            'carrera': request.POST.get('carrera', ''),
+            'categorias': request.POST.getlist('categorias'),
+            'presupuesto': request.POST.get('presupuesto', ''),
+            'compania': request.POST.getlist('compania'),
+        }
+        request.session['preferences'] = prefs
+        try:
+            neo4j.set_student_preferences(
+                django_user_id=request.user.id,
+                carrera=prefs['carrera'],
+                universidad=prefs['universidad'],
+                categorias=prefs['categorias'],
+                presupuesto=prefs['presupuesto'],
+            )
+        except Exception as e:
+            print(f"Neo4j set_student_preferences error: {e}")
         return redirect('recommendations')
     return render(request, 'recomendations/onboarding.html')
 
+
+@login_required(login_url='login')
 def mostrar_recomendaciones(request):
-    # Simulación de datos para la interfaz (luego vendrán de Neo4j)
-    recommendations = [
-        {
-            'name': 'Antigua Guatemala', 
-            'cost': 'Q550', 
-            'tag': 'Colonial', 
-            'image': 'https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop'
-        },
-        {
-            'name': 'Lago Atitlán', 
-            'cost': 'Q400', 
-            'tag': 'Naturaleza', 
-            'image': 'https://images.unsplash.com/photo-1582424075549-b5cfccda7950?q=80&w=600&auto=format&fit=crop'
-        },
-        {
-            'name': 'Semuc Champey', 
-            'cost': 'Q350', 
-            'tag': 'Aventura', 
-            'image': 'https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop'
-        },
-        {
-            'name': 'Tikal, Petén', 
-            'cost': 'Q600', 
-            'tag': 'Historia', 
-            'image': 'https://images.unsplash.com/photo-1512556798208-148886470870?q=80&w=600&auto=format&fit=crop'
-        }
-    ]
+    prefs = request.session.get('preferences', {})
+    categorias = prefs.get('categorias', [])
+
+    # Intenta Neo4j; si falla, cae al mock
+    try:
+        neo4j_results = neo4j.get_recommendations(django_user_id=request.user.id, limit=6)
+        recommendations = neo4j_results if neo4j_results else None
+    except Exception as e:
+        print(f"Neo4j get_recommendations error: {e}")
+        recommendations = None
+
+    if recommendations is None:
+        if categorias:
+            scored = []
+            for dest in MOCK_DESTINATIONS:
+                dest_cats = dest['category'].split()
+                bonus = sum(3 for c in categorias if c in dest_cats)
+                scored.append({**dest, 'score': min(dest['score'] + bonus, 99)})
+            recommendations = sorted(scored, key=lambda x: x['score'], reverse=True)
+        else:
+            recommendations = sorted(MOCK_DESTINATIONS, key=lambda x: x['score'], reverse=True)
 
     context = {
-        'user_name': 'USUARIO1', # aqui va a ir el nombre del usuario que se logueo, por ahora es un placeholder
-        'recommendations': recommendations
+        'user_name': request.user.first_name or request.user.email,
+        'recommendations': recommendations,
+        'total': len(recommendations),
+        'prefs': prefs,
     }
     return render(request, 'recomendations/recomendaciones.html', context)
