@@ -12,11 +12,11 @@ from neomodel import (
 # =========================
 
 class LikesRel(StructuredRel):
-    weight = FloatProperty(default=1.0) 
+    weight = FloatProperty(default=1.0)
 
 
 class VisitedRel(StructuredRel):
-    rating = FloatProperty() 
+    rating = FloatProperty()
     timestamp = DateTimeProperty()
     budget_spent = FloatProperty()
 
@@ -39,8 +39,10 @@ class Student(StructuredNode):
 
     name = StringProperty()
     budget = FloatProperty()
+    universidad = StringProperty()
+    presupuesto = StringProperty()
 
-    visited = RelationshipTo('Destination', 'VISITED', model=VisitedRel)
+    visited = RelationshipTo('Place', 'VISITED', model=VisitedRel)
     likes = RelationshipTo('Category', 'LIKES', model=LikesRel)
     studies = RelationshipTo('Career', 'STUDIES')
 
@@ -50,18 +52,17 @@ class City(StructuredNode):
     country = StringProperty()
 
 
-class Destination(StructuredNode):
+class Place(StructuredNode):
     uid = UniqueIdProperty()
 
-    name = StringProperty()
+    name = StringProperty(unique_index=True)
     cost = FloatProperty()
     popularity = FloatProperty(default=0.0)
 
     city = RelationshipTo('City', 'LOCATED_IN')
     categories = RelationshipTo('Category', 'HAS_CATEGORY')
     tags = RelationshipTo('Tag', 'HAS_TAG')
-
-    nearby = RelationshipTo('Destination', 'NEAR', model=NearRel)
+    nearby = RelationshipTo('Place', 'NEAR', model=NearRel)
 
     preferred_by = RelationshipFrom('Career', 'PREFERS', model=PreferenceRel)
     visited_by = RelationshipFrom('Student', 'VISITED', model=VisitedRel)
@@ -71,18 +72,17 @@ class Category(StructuredNode):
     name = StringProperty(unique_index=True)
 
     liked_by = RelationshipFrom('Student', 'LIKES', model=LikesRel)
-    destinations = RelationshipFrom('Destination', 'HAS_CATEGORY')
+    places = RelationshipFrom('Place', 'HAS_CATEGORY')
 
 
 class Career(StructuredNode):
     name = StringProperty(unique_index=True)
 
-    prefers = RelationshipTo('Destination', 'PREFERS', model=PreferenceRel)
-
+    prefers = RelationshipTo('Place', 'PREFERS', model=PreferenceRel)
     students = RelationshipFrom('Student', 'STUDIES')
 
 
 class Tag(StructuredNode):
     name = StringProperty(unique_index=True)
 
-    destinations = RelationshipFrom('Destination', 'HAS_TAG')
+    places = RelationshipFrom('Place', 'HAS_TAG')

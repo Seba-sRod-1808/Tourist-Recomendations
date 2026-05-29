@@ -81,7 +81,11 @@ DATABASES = {
     }
 }
 
-NEOMODEL_NEO4J_BOLT_URL= 'bolt://neo4j:password@localhost:7687'
+NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:password@localhost:7687'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/'
 
 NEOMODEL_SIGNALS = True
 

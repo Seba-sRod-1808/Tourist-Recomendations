@@ -28,7 +28,6 @@ def set_student_preferences(
         {"uid": django_user_id, "carrera": carrera, "universidad": universidad, "presupuesto": presupuesto},
     )
 
-    # Elimina preferencias anteriores y recrea
     db.cypher_query(
         "MATCH (s:Student {django_user_id: $uid})-[r:LIKES]->(:Category) DELETE r",
         {"uid": django_user_id},
@@ -46,25 +45,25 @@ def set_student_preferences(
 
 def get_recommendations(django_user_id=None, limit=6):
     """
-    Scoring Cypher:
-      +20 por cada Category que el estudiante LIKES y el destino tiene (HAS_CATEGORY)
-      +30 si la carrera del estudiante PREFERS el destino
-      +10 * popularidad
-    Excluye destinos ya VISITED por el estudiante.
+    Scoring:
+      +20 por cada Category que el Student LIKES y el Place tiene (HAS_CATEGORY)
+      +30 si la Career del Student PREFERS el Place
+      +10 * popularity del Place
+    Excluye Places ya VISITED por el Student.
     Sin django_user_id devuelve los más populares.
     """
     if django_user_id is None:
         results, _ = db.cypher_query(
             """
-            MATCH (d:Destination)
-            OPTIONAL MATCH (d)-[:HAS_CATEGORY]->(c:Category)
-            WITH d, collect(c.name) AS categories
-            ORDER BY coalesce(d.popularity, 0) DESC
+            MATCH (p:Place)
+            OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
+            WITH p, collect(c.name) AS categories
+            ORDER BY coalesce(p.popularity, 0) DESC
             LIMIT $limit
-            RETURN d.uid AS uid, d.name AS name,
-                   toInteger(coalesce(d.cost, 0)) AS cost,
+            RETURN p.uid AS uid, p.name AS name,
+                   toInteger(coalesce(p.cost, 0)) AS cost,
                    categories,
-                   toInteger(coalesce(d.popularity, 0) * 10) AS score
+                   toInteger(coalesce(p.popularity, 0) * 10) AS score
             """,
             {"limit": limit},
         )
@@ -72,30 +71,30 @@ def get_recommendations(django_user_id=None, limit=6):
         results, _ = db.cypher_query(
             """
             MATCH (s:Student {django_user_id: $uid})
-            MATCH (d:Destination)
-            WHERE NOT (s)-[:VISITED]->(d)
+            MATCH (p:Place)
+            WHERE NOT (s)-[:VISITED]->(p)
 
-            OPTIONAL MATCH (s)-[:LIKES]->(liked_cat:Category)<-[:HAS_CATEGORY]-(d)
-            OPTIONAL MATCH (s)-[:STUDIES]->(career:Career)-[:PREFERS]->(d)
-            OPTIONAL MATCH (d)-[:HAS_CATEGORY]->(any_cat:Category)
+            OPTIONAL MATCH (s)-[:LIKES]->(liked_cat:Category)<-[:HAS_CATEGORY]-(p)
+            OPTIONAL MATCH (s)-[:STUDIES]->(career:Career)-[:PREFERS]->(p)
+            OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(any_cat:Category)
 
-            WITH d,
+            WITH p,
                  count(DISTINCT liked_cat) AS cat_matches,
                  count(DISTINCT career)    AS career_score,
                  collect(DISTINCT any_cat.name) AS categories
 
-            WITH d, categories,
+            WITH p, categories,
                  toInteger(
                    cat_matches * 20 +
                    career_score  * 30 +
-                   coalesce(d.popularity, 0) * 10
+                   coalesce(p.popularity, 0) * 10
                  ) AS score
 
             ORDER BY score DESC
             LIMIT $limit
 
-            RETURN d.uid AS uid, d.name AS name,
-                   toInteger(coalesce(d.cost, 0)) AS cost,
+            RETURN p.uid AS uid, p.name AS name,
+                   toInteger(coalesce(p.cost, 0)) AS cost,
                    categories, score
             """,
             {"uid": django_user_id, "limit": limit},
@@ -103,14 +102,14 @@ def get_recommendations(django_user_id=None, limit=6):
 
     return [
         {
-            "uid":         row[0],
-            "name":        row[1],
-            "cost":        row[2],
-            "category":    " ".join(row[3]) if row[3] else "",
-            "score":       min(row[4], 99),
-            "tag":         row[3][0].capitalize() if row[3] else "Destino",
+            "uid":          row[0],
+            "name":         row[1],
+            "cost":         row[2],
+            "category":     " ".join(row[3]) if row[3] else "",
+            "score":        min(row[4], 99),
+            "tag":          row[3][0].capitalize() if row[3] else "Destino",
             "match_reason": "Basado en tus preferencias de carrera y categorías.",
-            "image":       "",
+            "image":        "",
         }
         for row in results
     ]
