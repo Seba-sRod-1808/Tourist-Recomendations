@@ -1,55 +1,62 @@
 """
 Interfaz de scoring para el algoritmo de recomendación.
-
-El compañero encargado del algoritmo debe implementar `score_place`.
-El servicio en queries/queries.py llama a get_recommendations() que actualmente
-usa Cypher puro. Para integrar lógica Python más compleja, reemplaza la función
-get_recommendations en queries.py para que use score_place aquí.
-
-Esquema del grafo relevante:
-  (Student)-[:LIKES {weight}]->(Category)<-[:HAS_CATEGORY]-(Place)
-  (Student)-[:STUDIES]->(Career)-[:PREFERS {weight}]->(Place)
-  (Student)-[:VISITED {rating, budget_spent}]->(Place)
-  (Place)-[:NEAR {distance_km}]->(Place)
-  (Place)-[:LOCATED_IN]->(City)
 """
 
 
-def score_place(student_profile: dict, place: dict) -> float:
-    """
-    Calcula el score de afinidad entre un estudiante y un lugar.
+def score_place(student_profile: dict, place: dict) -> dict:
 
-    Parámetros
-    ----------
-    student_profile : dict
-        categorias     : list[str]   -- categorias que el estudiante LIKES (de Neo4j)
-        carrera        : str         -- nombre de la carrera que estudia
-        presupuesto    : str         -- rango seleccionado en onboarding (ej. 'Q200-Q500')
-        budget         : float       -- presupuesto numerico si esta disponible
-        visited_uids   : list[str]   -- UIDs de places ya visitados (excluir)
+    direct_matches = len(place['categories'].intersection(student_profile['liked_categories']))
+    visited_matches = len(place['categories'].intersection(student_profile['visited_categories']))
 
-    place : dict
-        uid            : str
-        name           : str
-        cost           : float
-        popularity     : float       -- valor 0-10
-        categories     : list[str]   -- categorias del lugar (de Neo4j)
-        career_affinity: float       -- peso de Career-[:PREFERS]->Place (0 si no existe)
+    content_score = 0.0
+    if place['categories']:
+        content_score = (direct_matches * 1.0 + visited_matches * 0.7) / len(place['categories'])
+    content_score = min(content_score, 1.0)
 
-    Returns
-    -------
-    float
-        Score entre 0.0 y 100.0. Mayor = mejor recomendacion.
+    collaborative_score = min(place['similar_students_visits'] / 5.0, 1.0)
 
-    Notas para el algoritmo
-    -----------------------
-    - Filtrar places en visited_uids antes de llamar esta funcion.
-    - El Cypher base en queries/queries.py ya hace +20/cat, +30/career, +10*pop.
-      Este metodo permite logica hibrida (Python + datos del grafo).
-    - Para collaborative filtering: buscar Students similares en Neo4j
-      y usar sus ratings (VisitedRel.rating) como senal adicional.
-    """
-    raise NotImplementedError(
-        "Implementar algoritmo de scoring. "
-        "Ver docstring para contrato de parametros y esquema de grafo."
+    demographic_score = 1.0 if place['career_affinity'] else 0.0
+
+
+    popularity_bonus = place['popularity']
+
+    geo_bonus = score_geographic_proximity(place)
+
+    WEIGHT_CONTENT = 0.40
+    WEIGHT_COLLABORATIVE = 0.35
+    WEIGHT_DEMOGRAPHIC = 0.25
+    WEIGHT_POPULARITY = 0.05
+    WEIGHT_GEO = 0.05
+
+    final_score = (
+        (content_score * WEIGHT_CONTENT) +
+        (collaborative_score * WEIGHT_COLLABORATIVE) +
+        (demographic_score * WEIGHT_DEMOGRAPHIC) +
+        (popularity_bonus * WEIGHT_POPULARITY) +
+        (geo_bonus * WEIGHT_GEO)
     )
+
+    final_score_scaled = min(final_score * 100, 100.0)
+
+    return {
+        "final_score": round(final_score_scaled, 2),
+        "components": {
+            "content_based": round(content_score, 2),
+            "collaborative": round(collaborative_score, 2),
+            "demographic": round(demographic_score, 2),
+            "popularity": round(popularity_bonus, 2),
+            "geographic": round(geo_bonus, 2)
+        }
+    }
+
+
+def score_geographic_proximity(place: dict) -> float:
+    return 0.5
+
+
+def calculate_jaccard_similarity(set_a: set, set_b: set) -> float:
+    if not set_a or not set_b:
+        return 0.0
+    intersection = len(set_a.intersection(set_b))
+    union = len(set_a.union(set_b))
+    return intersection / union
