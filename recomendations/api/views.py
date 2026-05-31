@@ -186,3 +186,22 @@ def mostrar_recomendaciones(request):
         'prefs': prefs,
     }
     return render(request, 'recomendations/recomendaciones.html', context)
+
+@login_required(login_url='login')
+def perfil_view(request):
+    prefs = request.session.get('preferences', {})
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'email': request.user.email,
+        'prefs': prefs
+    }
+    return render(request, 'recomendations/perfil.html', context)
+
+@login_required(login_url='login')
+def destino_detalle_view(request, uid):
+    destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
+    
+    if not destino:
+        return redirect('recommendations') 
+        
+    return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
