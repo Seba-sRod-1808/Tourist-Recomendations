@@ -9,6 +9,10 @@ urlpatterns = [
     path('registro/', views.registro_view, name='registro'),
     path('onboarding/', views.onboarding_view, name='onboarding'),
     path('home/', views.mostrar_recomendaciones, name='recommendations'),
+    path('perfil/', views.perfil_view, name='perfil'),
+    path('destino/<str:uid>/', views.destino_detalle_view, name='destino_detalle'),
+    path('explorar/', views.explorar_view, name='explorar'),
+    path('mis-viajes/', views.mis_viajes_view, name='mis_viajes'),
     path('recuperar-contrasena/', views.recuperar_view, name='recuperar_contrasena'),
 
     # REST API Endpoints

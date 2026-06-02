@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Explorar Destinos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
+    --gray-50: #F1EFE8; --gray-400: #888780; --gray-600: #5F5E5A; --gray-900: #2C2C2A;
+    --radius-md: 12px; --radius-lg: 20px;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; padding-bottom: 3rem; }
+
+  /* Navbar superior */
+  nav {
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid #E8E5DC; padding: 0 1.5rem; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  
+  .avatar-circle { 
+    width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); 
+    color: #fff; display: flex; align-items: center; justify-content: center; 
+    font-weight: 700; font-size: 14px; font-family: 'Fraunces', serif; 
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+  /* Barra de Búsqueda de tu Prototipo */
+  .search-wrapper { margin-bottom: 1.5rem; position: relative; }
+  .search-input {
+    width: 100%; padding: 14px 16px 14px 44px; border: 1px solid #E8E5DC;
+    border-radius: var(--radius-md); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; background: #fff; color: var(--gray-900); outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s;
+  }
+  .search-input:focus { border-color: var(--green-600); box-shadow: 0 4px 12px rgba(59,109,17,0.08); }
+  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 16px; }
+
+  /* Carrusel de Filtros de tu Prototipo */
+  .filters-scroll {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 1.5rem;
+    scrollbar-width: none; /* Ocultar scrollbar en Firefox */
+  }
+  .filters-scroll::-webkit-scrollbar { display: none; /* Ocultar scrollbar en Chrome/Safari */ }
+  
+  .filter-pill {
+    background: #fff; border: 1px solid #E8E5DC; border-radius: 20px;
+    padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--gray-600);
+    text-decoration: none; white-space: nowrap; transition: all 0.2s;
+  }
+  .filter-pill.active {
+    background: var(--green-600); color: #fff; border-color: var(--green-600); font-weight: 700;
+  }
+
+  /* Catálogo de Tarjetas (Filtro Abierto) */
+  .catalog-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+
+  .card {
+    background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
+    overflow: hidden; position: relative; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card-img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  
+  /* Icono de Mapa flotante como el prototipo */
+  .map-badge {
+    position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9);
+    color: var(--gray-900); width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); backdrop-filter: blur(4px);
+  }
+
+  .card-body { padding: 1.25rem; }
+  .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .card-title { font-family: 'Fraunces', serif; font-size: 18px; margin: 0; color: var(--gray-900); line-height: 1.3; }
+  
+  /* Sistema de Estrellas del reporte */
+  .rating-stars { color: #FBBF24; font-size: 12px; margin-bottom: 8px; display: flex; gap: 2px; }
+  
+  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .card-tag { background: var(--gray-50); color: var(--gray-600); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
+  .card-price { font-size: 13px; color: var(--gray-400); margin: 0; }
+  .card-price strong { color: var(--green-600); font-size: 16px; font-family: 'Fraunces', serif; }
+
+  .btn-view {
+    display: block; width: 100%; text-align: center; border: 1px solid var(--green-100);
+    background: var(--green-50); color: var(--green-600); padding: 10px; margin-top: 14px;
+    border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-view:hover { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+
+  /* Vista en Escritorio */
+  @media (min-width: 768px) {
+    nav { padding: 0 2rem; }
+    .container { padding: 2.5rem 2rem; }
+    .search-wrapper { margin-bottom: 2rem; }
+    .filters-scroll { gap: 12px; margin-bottom: 2rem; }
+    .catalog-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'recommendations' %}" class="nav-brand">Utourist</a>
+  <a href="{% url 'perfil' %}" style="text-decoration: none;">
+    <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+  </a>
+</nav>
+
+<div class="container">
+  
+  <form method="GET" action="#" class="search-wrapper">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" name="q" class="search-input" placeholder="Buscar Destinos..." value="{{ request.GET.q|default:'' }}">
+  </form>
+
+  <div class="filters-scroll">
+    <a href="#" class="filter-pill active">Todos</a>
+    <a href="#" class="filter-pill">🌿 Naturaleza</a>
+    <a href="#" class="filter-pill">🏛️ Cultura</a>
+    <a href="#" class="filter-pill">⛰️ Aventura</a>
+    <a href="#" class="filter-pill">🏖️ Playas</a>
+  </div>
+
+  <div class="catalog-grid">
+    
+    {% for dest in destinations %}
+    <div class="card">
+      <img src="{{ dest.image }}" alt="{{ dest.name }}" class="card-img" loading="lazy">
+      <div class="map-badge"><i class="fa-solid fa-location-dot"></i></div>
+      
+      <div class="card-body">
+        <div class="card-header-row">
+          <h3 class="card-title">{{ dest.name }}</h3>
+        </div>
+        
+        <div class="rating-stars">
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+
+        <div class="card-meta">
+          <span class="card-tag">{{ dest.tag }}</span>
+          <p class="card-price">Desde <strong>Q{{ dest.cost }}</strong></p>
+        </div>
+        
+        <a href="{% url 'destino_detalle' dest.uid %}" class="btn-view">Explorar Destino</a>
+      </div>
+    </div>
+    {% empty %}
+    <p style="color: var(--gray-400); text-align: center; grid-column: 1 / -1; padding: 3rem 0;">
+      No se encontraron destinos que coincidan con tu búsqueda.
+    </p>
+    {% endfor %}
+
+  </div>
+</div>
+
+</body>
+</html>

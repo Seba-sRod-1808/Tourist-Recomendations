@@ -87,17 +87,84 @@
 
   @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .page-header h1 { font-size: 28px; } }
+
+  /* --- NUEVOS ESTILOS PARA EL MENÚ DESPLEGABLE --- */
+  .nav-user-container { position: relative; display: inline-block; }
+  
+  .user-trigger { 
+    display: flex; align-items: center; gap: 12px; cursor: pointer; 
+    padding: 6px 12px 6px 6px; border-radius: 30px; border: 1px solid transparent; transition: all 0.2s; 
+  }
+  .user-trigger:hover { background: #fff; border-color: #E8E5DC; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  
+  .avatar-circle { 
+    width: 36px; height: 36px; border-radius: 50%; background: var(--green-600); 
+    color: #fff; display: flex; align-items: center; justify-content: center; 
+    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; 
+  }
+  
+  .user-name-text { font-size: 14px; font-weight: 500; color: var(--gray-900); }
+  
+  .dropdown-menu { 
+    position: absolute; top: 110%; right: 0; background: #fff; width: 220px; 
+    border-radius: 12px; border: 1px solid #E8E5DC; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    display: none; flex-direction: column; padding: 8px; z-index: 200; 
+  }
+  .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease; }
+  
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .dropdown-item { 
+    padding: 10px 16px; color: var(--gray-600); text-decoration: none; font-size: 14px; 
+    font-weight: 500; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: 0.2s; 
+  }
+  .dropdown-item:hover { background: var(--gray-50); color: var(--green-600); }
+  .dropdown-divider { height: 1px; background: #E8E5DC; margin: 6px 0; }
+  .logout-btn:hover { color: #D85A30; background: #FAECE7; }
+  
+  body.dark-mode { background: #1A1A1A; color: #F4F1EB; }
+  body.dark-mode .card, body.dark-mode nav, body.dark-mode .dropdown-menu { background: #2C2C2A; border-color: #444; }
+  body.dark-mode .page-header h1, body.dark-mode .user-name-text { color: #F4F1EB; }
 </style>
 </head>
 <body>
 
 <nav>
   <a href="{% url 'landing' %}" class="nav-brand">Utourist</a>
-  <div class="nav-user">
-    <span>Hola, {{ user_name }}</span>
-    <a href="{% url 'logout' %}" class="btn-logout">Cerrar sesión</a>
+  
+  <div class="nav-user-container">
+    <div class="user-trigger" onclick="toggleMenu()">
+      <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+      <span class="user-name-text">Hola, {{ user_name }}</span>
+      <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
+    </div>
+
+    <div class="dropdown-menu" id="userMenu">
+      <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+      <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
+      <a href="#" class="dropdown-item"><i class="fa-solid fa-bell"></i> Notificaciones</a>
+      <div class="dropdown-divider"></div>
+      <a href="{% url 'logout' %}" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+    </div>
   </div>
 </nav>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('userMenu').classList.toggle('active');
+  }
+  
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+  }
+
+  window.onclick = function(event) {
+    if (!event.target.closest('.nav-user-container')) {
+      const menu = document.getElementById('userMenu');
+      if (menu.classList.contains('active')) menu.classList.remove('active');
+    }
+  }
+</script>
 
 <div class="page-header">
   <h1>Tus destinos recomendados</h1>
@@ -133,7 +200,7 @@
         <span class="score-num">{{ dest.score }}% match</span>
       </div>
       <p class="card-reason">{{ dest.match_reason }}</p>
-      <a href="#" class="btn-card">Ver detalles →</a>
+      <a href="{% url 'destino_detalle' dest.uid %}" class="btn-card">Ver detalles →</a>
     </div>
   </div>
   {% empty %}
