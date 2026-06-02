@@ -160,7 +160,6 @@ def mostrar_recomendaciones(request):
     prefs = request.session.get('preferences', {})
     categorias = prefs.get('categorias', [])
 
-    # Intenta Neo4j; si falla, cae al mock
     try:
         neo4j_results = neo4j.get_recommendations(django_user_id=request.user.id, limit=6)
         recommendations = neo4j_results if neo4j_results else None
