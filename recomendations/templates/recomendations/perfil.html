@@ -64,6 +64,19 @@
   <a href="{% url 'recommendations' %}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Volver al Home</a>
 </nav>
 
+{% if messages %}
+<div style="max-width: 900px; margin: 1rem auto; padding: 0 20px;">
+  {% for message in messages %}
+    <div style="padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; font-weight: 500; 
+      {% if message.tags == 'success' %} background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0;
+      {% elif message.tags == 'error' %} background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5;
+      {% else %} background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; {% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <div class="profile-layout">
   
   <div class="sidebar">
@@ -116,7 +129,19 @@
           </div>
           <div class="form-group">
             <label>Carrera que Estudias</label>
-            <input type="text" name="carrera" value="{{ prefs.carrera|default:'Ingeniería en Data Science' }}">
+            <select name="carrera">
+              <option value="Ingenieria" {% if prefs.carrera == 'Ingenieria' %}selected{% endif %}>Ingeniería (General)</option>
+              <option value="Ingeniería En Sistemas" {% if prefs.carrera == 'Ingeniería En Sistemas' %}selected{% endif %}>Ingeniería en Sistemas / Informática</option>
+              <option value="Ingeniería Mecánica" {% if prefs.carrera == 'Ingeniería Mecánica' %}selected{% endif %}>Ingeniería Mecánica / Industrial</option>
+              <option value="Medicina" {% if prefs.carrera == 'Medicina' %}selected{% endif %}>Medicina / Salud</option>
+              <option value="Psicología Clínica" {% if prefs.carrera == 'Psicología Clínica' %}selected{% endif %}>Psicología</option>
+              <option value="Administracion" {% if prefs.carrera == 'Administracion' %}selected{% endif %}>Administración de Empresas</option>
+              <option value="Marketing" {% if prefs.carrera == 'Marketing' %}selected{% endif %}>Marketing / Negocios</option>
+              <option value="Diseño Gráfico" {% if prefs.carrera == 'Diseño Gráfico' %}selected{% endif %}>Diseño Gráfico / Digital</option>
+              <option value="Derecho" {% if prefs.carrera == 'Derecho' %}selected{% endif %}>Derecho / Jurídico</option>
+              <option value="Arquitectura" {% if prefs.carrera == 'Arquitectura' %}selected{% endif %}>Arquitectura</option>
+              <option value="Otra" {% if prefs.carrera == 'Otra' %}selected{% endif %}>Otra Carrera</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Presupuesto Base</label>

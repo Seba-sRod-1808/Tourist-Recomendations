@@ -14,6 +14,7 @@ from django.contrib import messages
 
 from recomendations.queries import queries as neo4j
 from recomendations.services.recomendation_service import RecommendationService
+from recomendations.services.recommendation_debugger import RecommendationDebugger
 
 MOCK_DESTINATIONS = [
     {
@@ -63,6 +64,12 @@ def login_view(request):
 def registro_view(request):
     if request.user.is_authenticated:
         return redirect('recommendations')
+    
+    # Limpiamos mensajes previos acumulados para que no salgan al crear cuenta
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
+        
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         email = request.POST.get('email', '').strip()
@@ -91,6 +98,7 @@ def recuperar_view(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush() # Borra todo rastro de la sesión anterior
     return redirect('landing')
 
 @login_required(login_url='login')
@@ -103,6 +111,7 @@ def onboarding_view(request):
             'presupuesto': request.POST.get('presupuesto', ''),
             'compania': request.POST.getlist('compania'),
         }
+        # Guardamos en sesión para acceso rápido, pero Neo4j es la fuente de verdad
         request.session['preferences'] = prefs
         try:
             neo4j.set_student_preferences(
@@ -112,6 +121,8 @@ def onboarding_view(request):
                 categorias=prefs['categorias'],
                 presupuesto=prefs['presupuesto'],
             )
+            # Forzamos que la sesión se guarde
+            request.session.modified = True
         except Exception as e:
             print(f"Neo4j set_student_preferences error: {e}")
         return redirect('recommendations')
@@ -119,11 +130,22 @@ def onboarding_view(request):
 
 @login_required(login_url='login')
 def mostrar_recomendaciones(request):
-    prefs = request.session.get('preferences', {})
-    categorias = prefs.get('categorias', [])
-
+    # Sincronizamos preferencias desde Neo4j para asegurar que el algoritmo y la UI estén alineados
+    profile = neo4j.get_student_profile(request.user.id)
+    if profile:
+        prefs = {
+            'carrera': profile['carrera'],
+            'universidad': profile['universidad'],
+            'categorias': profile['categorias'],
+            'presupuesto': profile['presupuesto']
+        }
+        request.session['preferences'] = prefs
+    else:
+        prefs = request.session.get('preferences', {})
+    
     try:
-        neo4j_results = neo4j.get_recommendations(django_user_id=request.user.id, limit=6)
+        debugger = RecommendationDebugger()
+        neo4j_results = debugger.recommend_with_debug(request.user.id, limit=6)
         recommendations = neo4j_results if neo4j_results else None
     except Exception as e:
         print(f"Neo4j get_recommendations error: {e}")
@@ -135,14 +157,24 @@ def mostrar_recomendaciones(request):
     context = {
         'user_name': request.user.first_name or request.user.email,
         'recommendations': recommendations,
-        'total': len(recommendations),
+        'total': len(recommendations) if recommendations else 0,
         'prefs': prefs,
     }
     return render(request, 'recomendations/recomendaciones.html', context)
 
 @login_required(login_url='login')
 def perfil_view(request):
-    prefs = request.session.get('preferences', {})
+    profile = neo4j.get_student_profile(request.user.id)
+    if profile:
+        prefs = {
+            'carrera': profile['carrera'],
+            'universidad': profile['universidad'],
+            'categorias': profile['categorias'],
+            'presupuesto': profile['presupuesto']
+        }
+    else:
+        prefs = request.session.get('preferences', {})
+
     context = {
         'user_name': request.user.first_name or request.user.email,
         'email': request.user.email,

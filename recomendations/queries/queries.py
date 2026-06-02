@@ -206,3 +206,25 @@ def get_favorites(django_user_id: int):
         {"uid": django_user_id}
     )
     return rows
+
+def get_student_profile(django_user_id: int):
+    rows, _ = db.cypher_query(
+        """
+        MATCH (s:Student {django_user_id: $uid})
+        OPTIONAL MATCH (s)-[:STUDIES]->(career:Career)
+        OPTIONAL MATCH (s)-[:LIKES]->(lc:Category)
+        RETURN s.name, s.universidad, s.presupuesto, career.name, collect(DISTINCT lc.name)
+        """,
+        {"uid": django_user_id}
+    )
+    if not rows:
+        return None
+    
+    row = rows[0]
+    return {
+        "nombre": row[0],
+        "universidad": row[1],
+        "presupuesto": row[2],
+        "carrera": row[3],
+        "categorias": row[4]
+    }

@@ -18,7 +18,6 @@
   * { box-sizing: border-box; }
   body { font-family: 'DM Sans', sans-serif; background: #111; color: #fff; margin: 0; padding: 0; overflow-x: hidden; }
   
-  /* Botón de regreso flotante - Adaptado para pulgares */
   .btn-back { 
     position: absolute; top: 20px; left: 20px; 
     background: rgba(0,0,0,0.6); color: #fff; 
@@ -29,7 +28,6 @@
   }
   .btn-back:hover { background: rgba(255,255,255,0.3); }
 
-  /* Hero Banner Estilo Cinematográfico (Móvil) */
   .hero-banner { 
     width: 100%; min-height: 80vh; 
     position: relative; display: flex; 
@@ -39,18 +37,12 @@
   .hero-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #111 15%, rgba(17,17,17,0.4) 60%, transparent 100%); z-index: 1; }
   
   .content { position: relative; z-index: 2; width: 100%; padding: 0 1.5rem; }
-  
-  /* Título fluido */
   .title { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 12px; line-height: 1.1; letter-spacing: -0.5px; }
-  
-  /* Bloque de Metadatos */
   .meta-data { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; margin-bottom: 20px; }
   .match-score { color: #4ADE80; font-weight: 700; font-size: 16px; }
   .tag { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
-  
   .description { font-size: 15px; line-height: 1.6; color: #D3D1C7; margin: 0 0 24px; max-width: 600px; }
   
-  /* Botones de acción apilados en móvil */
   .actions { display: flex; flex-direction: column; gap: 12px; }
   .btn-primary, .btn-secondary { 
     width: 100%; padding: 14px; border-radius: var(--radius-md); 
@@ -58,17 +50,11 @@
     display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; 
   }
   .btn-primary { background: #fff; color: #000; }
-  .btn-primary:hover { background: #e5e5e5; }
-  .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); }
-  .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
+  .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); cursor: pointer; }
 
-  /* Estilos específicos para el formulario del botón de favoritos */
   .fav-form { display: flex; width: 100%; margin: 0; }
-  .fav-form button { font-family: inherit; cursor: pointer; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
 
-  /* Info adicional en formato vertical por defecto */
   .details-section { padding: 2rem 1.5rem; display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
-  
   .details-content h2 { font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 12px; }
   .details-content p { color: #D3D1C7; line-height: 1.6; font-size: 15px; margin: 0; }
   
@@ -77,32 +63,34 @@
   .info-box h3 { color: var(--gray-400); font-size: 11px; text-transform: uppercase; margin: 0 0 6px; letter-spacing: 1px; }
   .info-box p { font-size: 16px; margin: 0; font-weight: 500; }
 
-  /* =========================================
-     MEDIA QUERIES (VERSION DE ESCRITORIO)
-     ========================================= */
+  /* Animación Corazón */
+  @keyframes heartPop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+  .heart-pop { animation: heartPop 0.4s ease-out; color: #ef4444 !important; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #fff; color: #111; padding: 12px 24px; border-radius: 30px;
+    font-weight: 700; font-size: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: none; z-index: 1000; animation: slideUp 0.3s ease-out;
+  }
+  @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
   @media (min-width: 768px) {
     .btn-back { top: 30px; left: 40px; padding: 10px 20px; }
     .hero-banner { min-height: 70vh; padding-bottom: 50px; }
     .content { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
     .title { font-size: 64px; }
-    .meta-data { font-size: 16px; gap: 20px; }
-    .match-score { font-size: 18px; }
-    .description { font-size: 17px; }
-    
-    /* Botones en horizontal para pantallas grandes */
     .actions { flex-direction: row; gap: 15px; }
-    .btn-primary, .btn-secondary { width: auto; padding: 14px 28px; }
-    .fav-form { width: auto; }
-    .fav-form button { width: auto; }
-    
-    /* Grid de dos columnas en escritorio */
+    .btn-primary, .btn-secondary, .fav-form { width: auto; }
+    .btn-primary, .btn-secondary { padding: 14px 28px; }
     .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; grid-template-columns: 2fr 1fr; gap: 50px; }
-    .details-content h2 { font-size: 28px; }
-    .details-content p { font-size: 16px; }
   }
 </style>
 </head>
 <body>
+
+<div id="toast"></div>
 
 <a href="{% url 'recommendations' %}" class="btn-back">
   <i class="fa-solid fa-arrow-left"></i> Volver
@@ -129,16 +117,16 @@
       <a href="#" class="btn-primary"><i class="fa-solid fa-map-location-dot"></i> Ver en Mapa</a>
       
       {% if es_favorito %}
-        <form action="{% url 'eliminar_favorito' destino.uid %}?next=detalle" method="POST" class="fav-form" onsubmit="showToast('Eliminado de favoritos')">
+        <form action="{% url 'eliminar_favorito' destino.uid %}?next=detalle" method="POST" class="fav-form">
           {% csrf_token %}
-          <button type="submit" class="btn-secondary" style="border-color: #ef4444; color: #ef4444;">
+          <button type="submit" class="btn-secondary" style="border-color: #ef4444; color: #ef4444;" onclick="showToast('Eliminado de favoritos')">
             <i class="fa-solid fa-heart heart-pop"></i> Quitar de Favoritos
           </button>
         </form>
       {% else %}
-        <form action="{% url 'guardar_favorito' destino.uid %}" method="POST" class="fav-form" onsubmit="showToast('¡Guardado en favoritos!')">
+        <form action="{% url 'guardar_favorito' destino.uid %}" method="POST" class="fav-form">
           {% csrf_token %}
-          <button type="submit" class="btn-secondary">
+          <button type="submit" class="btn-secondary" onclick="showToast('¡Guardado en favoritos!')">
             <i class="fa-regular fa-heart"></i> Guardar Destino
           </button>
         </form>
@@ -152,8 +140,15 @@
     const toast = document.getElementById('toast');
     toast.innerText = message;
     toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
   }
 </script>
+
+{% if messages %}
+  {% for message in messages %}
+    <script>showToast("{{ message }}");</script>
+  {% endfor %}
+{% endif %}
 
 <div class="details-section">
   <div class="details-content">
