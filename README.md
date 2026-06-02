@@ -78,6 +78,6 @@ El sistema utiliza un **Algoritmo Híbrido de Recomendación** con los siguiente
 
 ---
 
-## 👥 Equipo (Mintus Software Solutions)
+## 👥 Equipo
 *   Marco Prera, Fabricio Estrada, Mauricio Corado, Sebastián Rodas.
 *   **Curso**: Programación de Microprocesadores, UVG 2026.
