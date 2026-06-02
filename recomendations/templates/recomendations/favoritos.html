@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Mis Favoritos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root { --green-600: #3B6D11; --green-800: #27500A; --gray-50: #F1EFE8; --gray-400: #888780; --gray-900: #2C2C2A; --radius-lg: 20px; }
+  * { box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; padding-bottom: 3rem; }
+
+  nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  .btn-back { color: var(--gray-600); text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .btn-back:hover { color: var(--green-600); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+  
+  /* Cabecera y Filtros */
+  .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 15px; }
+  .header-text h1 { font-family: 'Fraunces', serif; font-size: 32px; margin: 0 0 8px; color: var(--gray-900); }
+  .header-text p { font-size: 15px; color: var(--gray-400); margin: 0; }
+  
+  /* Estilos del Formulario Filtro */
+  .sort-filter { display: flex; align-items: center; gap: 10px; margin: 0; }
+  .sort-filter label { font-size: 13px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; }
+  .sort-select { padding: 10px 15px; border: 1px solid #D3D1C7; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: #fff; color: var(--gray-900); outline: none; cursor: pointer; transition: 0.2s; }
+  .sort-select:focus, .sort-select:hover { border-color: var(--green-600); box-shadow: 0 2px 8px rgba(59,109,17,0.1); }
+
+  .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+  .card { background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC; overflow: hidden; position: relative; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+  .card-img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  
+  .btn-remove-fav { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); color: #EF4444; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; }
+  .btn-remove-fav:hover { background: #EF4444; color: #fff; }
+  
+  .rank-badge { position: absolute; top: 12px; left: 12px; background: var(--green-600); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+  .card-body { padding: 1.25rem; }
+  .card-title { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 8px; color: var(--gray-900); }
+  .card-meta { font-size: 14px; color: var(--gray-600); margin-bottom: 15px; display: flex; justify-content: space-between; }
+  .card-meta strong { color: var(--green-600); }
+  
+  .btn-group { display: flex; gap: 10px; }
+  .btn-view { flex: 1; text-align: center; background: var(--green-600); color: #fff; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: 0.2s; }
+  .btn-view:hover { background: var(--green-800); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'recommendations' %}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Volver al Home</a>
+  <a href="{% url 'recommendations' %}" class="nav-brand">Utourist</a>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div class="header-text">
+      <h1>Tus Favoritos</h1>
+      <p>Destinos guardados para tus próximas aventuras.</p>
+    </div>
+    
+    <form method="GET" class="sort-filter">
+      <label>Ordenar por:</label>
+      <select name="sort" class="sort-select" onchange="this.form.submit()">
+        <option value="match" {% if current_sort == 'match' %}selected{% endif %}>⭐ Mejor Rankeados (Match)</option>
+        <option value="price" {% if current_sort == 'price' %}selected{% endif %}>💰 Más Económicos</option>
+        <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>📅 Agregados Recientemente</option>
+      </select>
+    </form>
+  </div>
+
+  <div class="catalog-grid">
+    {% for dest in favoritos %}
+    <div class="card">
+      <img src="{{ dest.image }}" alt="{{ dest.name }}" class="card-img">
+      <div class="rank-badge">Top #{{ forloop.counter }}</div>
+      
+      <button class="btn-remove-fav" onclick="alert('Funcionalidad de eliminar pendiente.')">
+        <i class="fa-solid fa-heart-crack"></i>
+      </button>
+      
+      <div class="card-body">
+        <h3 class="card-title">{{ dest.name }}</h3>
+        <div class="card-meta">
+          <span>Q{{ dest.cost }} est.</span>
+          <strong>{{ dest.score }}% Match</strong>
+        </div>
+        
+        <div class="btn-group">
+          <a href="{% url 'destino_detalle' dest.uid %}" class="btn-view">Ver Detalles</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p style="grid-column: 1/-1; text-align: center; color: var(--gray-400); padding: 3rem 0;">Aún no tienes destinos guardados en tus favoritos.</p>
+    {% endfor %}
+  </div>
+</div>
+
+</body>
+</html>

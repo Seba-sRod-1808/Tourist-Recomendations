@@ -1,3 +1,11 @@
+"""
+PROCESO: Capa de Vistas
+DESCRIPCIÓN: Gestiona las peticiones HTTP y la lógica de presentación.
+Incluye el manejo de autenticación de usuarios, registro de preferencias,
+visualización de recomendaciones personalizadas, detalles de destinos y perfiles.
+Actúa como puente entre la lógica de negocio y los templates de Django.
+"""
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -69,12 +77,10 @@ MOCK_DESTINATIONS = [
     },
 ]
 
-
 def landing_view(request):
     if request.user.is_authenticated:
         return redirect('recommendations')
     return render(request, 'recomendations/landing.html')
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -92,7 +98,6 @@ def login_view(request):
             return redirect('recommendations')
         messages.error(request, 'Correo o contraseña incorrectos.')
     return render(request, 'recomendations/login.html')
-
 
 def registro_view(request):
     if request.user.is_authenticated:
@@ -117,18 +122,15 @@ def registro_view(request):
         return redirect('onboarding')
     return render(request, 'recomendations/registro.html')
 
-
 def recuperar_view(request):
     if request.method == 'POST':
         messages.success(request, 'Si ese correo está registrado, recibirás las instrucciones pronto.')
         return redirect('recuperar_contrasena')
-    return render(request, 'recomendations/password_reset_confirm.html')
-
+    return render(request, 'recomendations/recuperar.html')
 
 def logout_view(request):
     logout(request)
     return redirect('landing')
-
 
 @login_required(login_url='login')
 def onboarding_view(request):
@@ -153,7 +155,6 @@ def onboarding_view(request):
             print(f"Neo4j set_student_preferences error: {e}")
         return redirect('recommendations')
     return render(request, 'recomendations/onboarding.html')
-
 
 @login_required(login_url='login')
 def mostrar_recomendaciones(request):
@@ -198,29 +199,25 @@ def perfil_view(request):
 
 @login_required(login_url='login')
 def destino_detalle_view(request, uid):
-    destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
-    
+    destino = neo4j.get_place_details_by_uid(uid)
+    if not destino:
+        destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
     if not destino:
         return redirect('recommendations') 
-        
     return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
-
 
 @login_required(login_url='login')
 def explorar_view(request):
     query = request.GET.get('q', '').lower()
-    
     try:
-        destinations = None
+        destinations = neo4j.get_all_places()
         if not destinations:
             destinations = MOCK_DESTINATIONS
     except Exception as e:
         print(f"Neo4j get_all_places error: {e}")
         destinations = MOCK_DESTINATIONS
-
     if query:
         destinations = [d for d in destinations if query in d['name'].lower()]
-
     context = {
         'user_name': request.user.first_name or request.user.email,
         'destinations': destinations
@@ -229,6 +226,89 @@ def explorar_view(request):
 
 @login_required(login_url='login')
 def mis_viajes_view(request):
-    return render(request, 'recomendations/mis_viajes.html', {
-        'user_name': request.user.first_name or request.user.username
+    visited = neo4j.get_visited_places(request.user.id)
+    return render(request, 'recomendations/mis_destinos.html', {
+        'user_name': request.user.first_name or request.user.username,
+        'visited': visited
     })
+
+@login_required(login_url='login')
+def destino_detalle_view(request, uid):
+    destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
+    
+    if not destino:
+        messages.error(request, 'El destino que buscas no se encuentra disponible.')
+        return redirect('recommendations')
+        
+    return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
+
+@login_required(login_url='login')
+def favoritos_view(request):
+    favoritos = sorted(MOCK_DESTINATIONS[:4], key=lambda x: x['score'], reverse=True)
+    
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'favoritos': favoritos
+    }
+    return render(request, 'recomendations/favoritos.html', context)
+
+@login_required(login_url='login')
+def guardar_favorito_view(request, uid):
+    if request.method == 'POST':
+        try:
+            # Llama a Neo4j para crear la relación
+            neo4j.add_favorite(request.user.id, uid)
+            messages.success(request, '¡Destino guardado en tus favoritos!')
+        except Exception as e:
+            messages.error(request, 'Hubo un error al guardar el destino.')
+    
+    # Después de guardar, te devuelve a la página del destino
+    return redirect('destino_detalle', uid=uid)
+
+@login_required(login_url='login')
+def favoritos_view(request):
+    try:
+        # Obtenemos los favoritos reales desde Neo4j
+        raw_favs = neo4j.get_favorites(request.user.id)
+        favoritos = []
+        
+        for row in raw_favs:
+            # Buscamos la imagen del destino (temporalmente usamos el MOCK para la foto)
+            imagen = "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=600&auto=format&fit=crop"
+            for md in MOCK_DESTINATIONS:
+                if md['name'] == row[1]:
+                    imagen = md['image']
+                    break
+            
+            favoritos.append({
+                'uid': row[0],
+                'name': row[1],
+                'cost': int(row[2]),
+                'tag': row[3][0].capitalize() if row[3] else "Destino",
+                'score': int(row[4] * 100),
+                'image': imagen
+            })
+            
+        sort_by = request.GET.get('sort', 'match') # 'match' es el valor por defecto
+        
+        if sort_by == 'price':
+            # Ordenar por costo (de menor a mayor)
+            favoritos = sorted(favoritos, key=lambda x: x['cost'])
+        elif sort_by == 'recent':
+            # Invertimos la lista para simular los agregados más recientemente
+            favoritos.reverse()
+        else:
+            # Ordenar por Match (score) de mayor a menor
+            favoritos = sorted(favoritos, key=lambda x: x['score'], reverse=True)
+            
+    except Exception as e:
+        print(f"Error cargando favoritos: {e}")
+        favoritos = []
+        sort_by = 'match'
+
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'favoritos': favoritos,
+        'current_sort': sort_by  # Mandamos el estado actual para que el menú visualice la opción correcta
+    }
+    return render(request, 'recomendations/favoritos.html', context)

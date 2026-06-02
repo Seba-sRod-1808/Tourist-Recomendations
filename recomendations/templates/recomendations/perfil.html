@@ -19,17 +19,21 @@
   
   /* Menú lateral */
   .sidebar { background: #fff; border-radius: 16px; border: 1px solid #E8E5DC; overflow: hidden; height: fit-content; }
-  .sidebar-link { display: block; padding: 16px 20px; color: var(--gray-600); text-decoration: none; font-weight: 500; border-left: 4px solid transparent; transition: 0.2s; }
+  .sidebar-link { display: block; padding: 16px 20px; color: var(--gray-600); text-decoration: none; font-weight: 500; border-left: 4px solid transparent; transition: 0.2s; cursor: pointer; }
   .sidebar-link i { width: 24px; }
   .sidebar-link:hover { background: var(--gray-50); color: var(--gray-900); }
   .sidebar-link.active { border-left-color: var(--green-600); color: var(--green-600); background: #EAF3DE; font-weight: 700; }
   
   /* Contenedor principal del formulario */
-  .content-panel { background: #fff; border-radius: 16px; padding: 40px; border: 1px solid #E8E5DC; }
+  .content-panel { background: #fff; border-radius: 16px; padding: 40px; border: 1px solid #E8E5DC; min-height: 500px; }
+  .tab-content { display: none; animation: fadeIn 0.3s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   
   /* Sección superior: Avatar y nombre */
   .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid #E8E5DC; }
-  .avatar-large { width: 80px; height: 80px; background: var(--green-600); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-family: 'Fraunces', serif; }
+  .avatar-large { width: 80px; height: 80px; background: var(--green-600); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-family: 'Fraunces', serif; overflow: hidden; position: relative; }
+  .avatar-large img { width: 100%; height: 100%; object-fit: cover; display: none; }
   .profile-info h1 { font-family: 'Fraunces', serif; font-size: 26px; margin: 0 0 5px; }
   .profile-info p { color: var(--gray-400); margin: 0; font-size: 14px; }
   .btn-change-photo { background: var(--gray-50); color: var(--gray-900); border: 1px solid #D3D1C7; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: 0.2s; }
@@ -45,6 +49,12 @@
   
   .btn-save { background: var(--green-600); color: #fff; border: none; padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; float: right; }
   .btn-save:hover { background: #27500A; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,109,17,0.2); }
+
+  /* Grid de checkboxes para preferencias */
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 14px; background: #F9F8F6; padding: 12px; border-radius: 8px; border: 1px solid #D3D1C7; cursor: pointer; transition: 0.2s; }
+  .checkbox-label:hover { border-color: var(--green-600); }
+  .checkbox-label input { margin: 0; accent-color: var(--green-600); width: 16px; height: 16px; }
 </style>
 </head>
 <body>
@@ -57,9 +67,9 @@
 <div class="profile-layout">
   
   <div class="sidebar">
-    <a href="#" class="sidebar-link active"><i class="fa-solid fa-user"></i> Datos Personales</a>
-    <a href="#" class="sidebar-link"><i class="fa-solid fa-compass"></i> Preferencias de Viaje</a>
-    <a href="#" class="sidebar-link"><i class="fa-solid fa-lock"></i> Seguridad y Contraseña</a>
+    <a class="sidebar-link active" onclick="switchTab('datos', this)"><i class="fa-solid fa-user"></i> Datos Personales</a>
+    <a class="sidebar-link" onclick="switchTab('preferencias', this)"><i class="fa-solid fa-compass"></i> Preferencias de Viaje</a>
+    <a class="sidebar-link" onclick="switchTab('seguridad', this)"><i class="fa-solid fa-lock"></i> Seguridad y Contraseña</a>
     <div style="height: 1px; background: #E8E5DC; margin: 10px 0;"></div>
     <a href="{% url 'logout' %}" class="sidebar-link" style="color: #D85A30;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
   </div>
@@ -67,56 +77,135 @@
   <div class="content-panel">
     
     <div class="profile-header">
-      <div class="avatar-large">{{ user_name|make_list|first|upper }}</div>
+      <div class="avatar-large" id="avatarPreview">
+        <span id="avatarInitials">{{ user_name|make_list|first|upper }}</span>
+        <img id="avatarImage" src="" alt="Foto de perfil">
+      </div>
       <div class="profile-info">
         <h1>{{ user_name }}</h1>
         <p>Usuario Universitario Utourist</p>
-        <button class="btn-change-photo"><i class="fa-solid fa-camera"></i> Cambiar foto</button>
+        
+        <!-- Input file oculto y botón que lo activa -->
+        <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="previewPhoto(event)">
+        <button type="button" class="btn-change-photo" onclick="document.getElementById('photoInput').click()">
+          <i class="fa-solid fa-camera"></i> Cambiar foto
+        </button>
       </div>
     </div>
 
-    <form action="#" method="POST">
-      <!-- Estos datos los rellenamos con la info real del backend -->
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Nombre Mostrado</label>
-          <input type="text" value="{{ user_name }}" name="nombre">
+    <!-- PESTAÑA 1: DATOS PERSONALES -->
+    <div id="tab-datos" class="tab-content active">
+      <form action="#" method="POST">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre Mostrado</label>
+            <input type="text" value="{{ user_name }}" name="nombre">
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico (Solo Lectura)</label>
+            <input type="email" value="{{ email }}" readonly style="color: #888780; cursor: not-allowed;">
+          </div>
+          <div class="form-group full">
+            <label>Universidad de Origen</label>
+            <select name="universidad">
+              <option value="UVG" {% if prefs.universidad == 'UVG' %}selected{% endif %}>Universidad del Valle (UVG)</option>
+              <option value="USAC" {% if prefs.universidad == 'USAC' %}selected{% endif %}>Universidad de San Carlos (USAC)</option>
+              <option value="URL" {% if prefs.universidad == 'URL' %}selected{% endif %}>Universidad Landívar (URL)</option>
+              <option value="UFM" {% if prefs.universidad == 'UFM' %}selected{% endif %}>Universidad Francisco Marroquín (UFM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Carrera que Estudias</label>
+            <input type="text" name="carrera" value="{{ prefs.carrera|default:'Ingeniería en Data Science' }}">
+          </div>
+          <div class="form-group">
+            <label>Presupuesto Base</label>
+            <select name="presupuesto">
+              <option value="economico" {% if prefs.presupuesto == 'Menos de Q200' %}selected{% endif %}>Económico (Menos de Q200)</option>
+              <option value="moderado" {% if prefs.presupuesto == 'Q200–Q500' %}selected{% endif %}>Moderado (Q200 – Q500)</option>
+              <option value="estandar" {% if prefs.presupuesto == 'Q500–Q1000' %}selected{% endif %}>Estándar (Q500 – Q1,000)</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Correo Electrónico (Solo Lectura)</label>
-          <input type="email" value="{{ email }}" readonly style="color: #888780; cursor: not-allowed;">
-        </div>
-        
-        <div class="form-group full">
-          <label>Universidad de Origen</label>
-          <select name="universidad">
-            <option value="UVG" {% if prefs.universidad == 'UVG' %}selected{% endif %}>Universidad del Valle (UVG)</option>
-            <option value="USAC" {% if prefs.universidad == 'USAC' %}selected{% endif %}>Universidad de San Carlos (USAC)</option>
-            <option value="URL" {% if prefs.universidad == 'URL' %}selected{% endif %}>Universidad Landívar (URL)</option>
-            <option value="UFM" {% if prefs.universidad == 'UFM' %}selected{% endif %}>Universidad Francisco Marroquín (UFM)</option>
-          </select>
-        </div>
+        <button type="button" class="btn-save" onclick="alert('Datos personales actualizados.')">Guardar Cambios</button>
+      </form>
+    </div>
 
-        <div class="form-group">
-          <label>Carrera que Estudias</label>
-          <input type="text" name="carrera" value="{{ prefs.carrera|default:'Ingeniería en Data Science' }}">
+    <!-- PESTAÑA 2: PREFERENCIAS DE VIAJE -->
+    <div id="tab-preferencias" class="tab-content">
+      <form action="#" method="POST">
+        <div class="form-group full" style="margin-bottom: 20px;">
+          <label>Tus categorías favoritas</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-label"><input type="checkbox" checked> 🌿 Naturaleza</label>
+            <label class="checkbox-label"><input type="checkbox" checked> 🏛️ Historia y Cultura</label>
+            <label class="checkbox-label"><input type="checkbox"> ⛰️ Aventura</label>
+            <label class="checkbox-label"><input type="checkbox"> 🏖️ Playas y Ríos</label>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label>Presupuesto Base</label>
-          <select name="presupuesto">
-            <option value="economico" {% if prefs.presupuesto == 'Menos de Q200' %}selected{% endif %}>Económico (Menos de Q200)</option>
-            <option value="moderado" {% if prefs.presupuesto == 'Q200–Q500' %}selected{% endif %}>Moderado (Q200 – Q500)</option>
-            <option value="estandar" {% if prefs.presupuesto == 'Q500–Q1000' %}selected{% endif %}>Estándar (Q500 – Q1,000)</option>
-          </select>
+        <div class="form-group full" style="margin-bottom: 20px;">
+          <label>¿Con quién sueles viajar?</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-label"><input type="checkbox" checked> 🎒 Amigos de la U</label>
+            <label class="checkbox-label"><input type="checkbox"> 👨‍👩‍👧‍👦 Familia</label>
+            <label class="checkbox-label"><input type="checkbox"> ❤️ Pareja</label>
+            <label class="checkbox-label"><input type="checkbox"> 🧭 Solo</label>
+          </div>
         </div>
-      </div>
+        <button type="button" class="btn-save" onclick="alert('Preferencias actualizadas.')">Actualizar Preferencias</button>
+      </form>
+    </div>
 
-      <button type="button" class="btn-save" onclick="alert('Cambios guardados con éxito en tu perfil.')">Guardar Cambios</button>
-    </form>
+    <!-- PESTAÑA 3: SEGURIDAD Y CONTRASEÑA -->
+    <div id="tab-seguridad" class="tab-content">
+      <form action="#" method="POST">
+        <div class="form-group full" style="margin-bottom: 15px;">
+          <label>Contraseña Actual</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <div class="form-group full" style="margin-bottom: 15px;">
+          <label>Nueva Contraseña</label>
+          <input type="password" placeholder="Mínimo 8 caracteres" required>
+        </div>
+        <div class="form-group full" style="margin-bottom: 25px;">
+          <label>Confirmar Nueva Contraseña</label>
+          <input type="password" placeholder="Repite tu nueva contraseña" required>
+        </div>
+        <button type="button" class="btn-save" onclick="alert('Contraseña cambiada exitosamente.')">Cambiar Contraseña</button>
+      </form>
+    </div>
 
   </div>
 </div>
+
+<script>
+  // Función para cambiar entre pestañas del perfil
+  function switchTab(tabId, element) {
+    // Quitar 'active' de todos los links y contenidos
+    document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    
+    // Activar el link clickeado y su contenido correspondiente
+    element.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+
+  // Función para previsualizar la foto cargada sin recargar la página
+  function previewPhoto(event) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('avatarInitials').style.display = 'none';
+        const img = document.getElementById('avatarImage');
+        img.src = e.target.result;
+        img.style.display = 'block';
+      }
+      reader.readAsDataURL(input.files[0]);
+      /* Aquí en el futuro harías una petición AJAX/Fetch a Django para guardar la imagen en el modelo */
+    }
+  }
+</script>
 
 </body>
 </html>
