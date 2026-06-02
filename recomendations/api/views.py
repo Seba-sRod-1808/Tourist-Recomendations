@@ -122,7 +122,7 @@ def recuperar_view(request):
     if request.method == 'POST':
         messages.success(request, 'Si ese correo está registrado, recibirás las instrucciones pronto.')
         return redirect('recuperar_contrasena')
-    return render(request, 'recomendations/recuperar.html')
+    return render(request, 'recomendations/password_reset_confirm.html')
 
 
 def logout_view(request):
@@ -205,3 +205,31 @@ def destino_detalle_view(request, uid):
         return redirect('recommendations') 
         
     return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
+
+
+@login_required(login_url='login')
+def explorar_view(request):
+    query = request.GET.get('q', '').lower()
+    
+    try:
+        destinations = None
+        if not destinations:
+            destinations = MOCK_DESTINATIONS
+    except Exception as e:
+        print(f"Neo4j get_all_places error: {e}")
+        destinations = MOCK_DESTINATIONS
+
+    if query:
+        destinations = [d for d in destinations if query in d['name'].lower()]
+
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'destinations': destinations
+    }
+    return render(request, 'recomendations/explorar.html', context)
+
+@login_required(login_url='login')
+def mis_viajes_view(request):
+    return render(request, 'recomendations/mis_viajes.html', {
+        'user_name': request.user.first_name or request.user.username
+    })

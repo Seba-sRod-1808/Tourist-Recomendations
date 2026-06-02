@@ -83,3 +83,29 @@ def add_review(django_user_id: int, place_uid: str, rating: float, comment: str 
         """,
         {"uid": django_user_id, "p_uid": place_uid, "rating": rating, "comment": comment},
     )
+
+# ---------------------------------------------------------------------------
+# Mis_viajes
+# ---------------------------------------------------------------------------
+
+def get_visited_places(django_user_id):
+    query = """
+    MATCH (s:Student {django_user_id: $user_id})-[r:VISITED]->(p:Place)
+    RETURN p.uid AS uid, 
+           p.name AS name, 
+           p.image AS image, 
+           r.rating AS rating, 
+           r.timestamp AS date
+    """
+    results, meta = db.cypher_query(query, {'user_id': django_user_id})
+    
+    visited = []
+    for row in results:
+        visited.append({
+            'uid': row[0],
+            'name': row[1],
+            'image': row[2] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee',
+            'rating': row[3], 
+            'date': row[4]
+        })
+    return visited
