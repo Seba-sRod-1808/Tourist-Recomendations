@@ -84,19 +84,15 @@ def get_place_details_by_uid(place_uid: str):
     query = """
     MATCH (p:Place {uid: $uid})
     OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
-    RETURN p.uid AS uid, 
-           p.name AS name, 
-           p.cost AS cost, 
-           p.popularity AS popularity,
-           p.lat AS lat,
-           p.lng AS lng,
-           collect(c.name) AS categories
+    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name), p.image_url
     """
     results, meta = db.cypher_query(query, {'uid': place_uid})
-    if not results:
+    if not results or not results[0][0]:
         return None
     
     row = results[0]
+    categorias_lista = row[6] if row[6] else []
+    
     return {
         'uid': row[0],
         'name': row[1],
@@ -104,27 +100,24 @@ def get_place_details_by_uid(place_uid: str):
         'popularity': row[3],
         'lat': row[4],
         'lng': row[5],
-        'categories': row[6],
-        'category': ' '.join(row[6]),
-        'image': RecommendationService()._get_image(row[1]) 
+        'categories': categorias_lista,
+        'category': ' '.join(categorias_lista) if categorias_lista else 'General',
+        'tag': categorias_lista[0].capitalize() if categorias_lista else 'Destino',
+        'match_reason': 'Sugerido por nuestro algoritmo basado en tus preferencias.',
+        'image': row[7] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee' 
     }
 
 def get_all_places():
     query = """
     MATCH (p:Place)
     OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
-    RETURN p.uid AS uid, 
-           p.name AS name, 
-           p.cost AS cost, 
-           p.popularity AS popularity,
-           p.lat AS lat,
-           p.lng AS lng,
-           collect(c.name) AS categories
+    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name), p.image_url
     """
     results, meta = db.cypher_query(query)
     
     places = []
     for row in results:
+        categorias_lista = row[6] if row[6] else []
         places.append({
             'uid': row[0],
             'name': row[1],
@@ -132,10 +125,10 @@ def get_all_places():
             'score': int((row[3] or 0) * 100),
             'lat': row[4],
             'lng': row[5],
-            'categories': row[6],
-            'category': ' '.join(row[6]),
-            'tag': row[6][0].capitalize() if row[6] else "Destino",
-            'image': RecommendationService()._get_image(row[1])
+            'categories': categorias_lista,
+            'category': ' '.join(categorias_lista),
+            'tag': categorias_lista[0].capitalize() if categorias_lista else "Destino",
+            'image': row[7] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee'
         })
     return places
 
