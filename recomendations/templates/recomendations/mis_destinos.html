@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utourist — Mis Viajes</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
+    --gray-50: #F1EFE8; --gray-400: #888780; --gray-600: #5F5E5A; --gray-900: #2C2C2A;
+    --radius-md: 12px; --radius-lg: 20px;
+    --star-active: #FBBF24; --star-inactive: #D3D1C7;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; padding-bottom: 3rem; }
+
+  /* Navbar superior */
+  nav {
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid #E8E5DC; padding: 0 1.5rem; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  .btn-back { color: var(--gray-600); text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 28px; margin: 0 0 8px; color: var(--gray-900); }
+  .page-header p { font-size: 14px; color: var(--gray-600); margin: 0; line-height: 1.5; }
+
+  /* Lista de Viajes (Móvil: 1 columna, Escritorio: 2 columnas) */
+  .history-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* Tarjeta de Historial */
+  .history-card {
+    background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  
+  .history-img { width: 100%; height: 160px; object-fit: cover; }
+  
+  .history-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  
+  .history-header h3 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 4px; color: var(--gray-900); }
+  .history-header p { font-size: 13px; color: var(--gray-400); margin: 0; }
+
+  /* Componente de Calificación Interactivo */
+  .rating-section { background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); text-align: center; }
+  .rating-label { display: block; font-size: 12px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+  
+  .star-rating { display: flex; justify-content: center; gap: 8px; direction: rtl; /* RTL para que el hover seleccione las anteriores */ }
+  .star-rating input { display: none; }
+  .star-rating label { font-size: 24px; color: var(--star-inactive); cursor: pointer; transition: color 0.2s; }
+  
+  /* Lógica CSS para colorear estrellas al pasar el mouse o seleccionarlas */
+  .star-rating label:hover,
+  .star-rating label:hover ~ label,
+  .star-rating input:checked ~ label { color: var(--star-active); }
+
+  .btn-submit-review {
+    width: 100%; background: #fff; color: var(--green-600); border: 1px solid var(--green-600);
+    padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 10px;
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .btn-submit-review:hover { background: var(--green-600); color: #fff; }
+
+  @media (min-width: 768px) {
+    nav { padding: 0 2rem; }
+    .history-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    .history-card { flex-direction: row; }
+    .history-img { width: 200px; height: auto; }
+    .history-body { flex: 1; justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'perfil' %}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+  <a href="{% url 'recommendations' %}" class="nav-brand">Utourist</a>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Mis Viajes</h1>
+    <p>Califica los destinos que has visitado. Tu opinión ayuda a nuestro algoritmo a recomendar mejores opciones a otros estudiantes de tu facultad.</p>
+  </div>
+
+  <div class="history-grid">
+    
+    <div class="history-card">
+      <img src="https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop" alt="Semuc Champey" class="history-img" loading="lazy">
+      <div class="history-body">
+        <div class="history-header">
+          <h3>Semuc Champey</h3>
+          <p>Visitado en Noviembre 2025</p>
+        </div>
+        
+        <form class="rating-section" action="{% url 'api_submit_review' %}" method="POST">
+          <span class="rating-label">¿Qué te pareció?</span>
+          <div class="star-rating">
+            <input type="radio" id="star5-1" name="rating" value="5"><label for="star5-1" class="fa-solid fa-star"></label>
+            <input type="radio" id="star4-1" name="rating" value="4"><label for="star4-1" class="fa-solid fa-star"></label>
+            <input type="radio" id="star3-1" name="rating" value="3"><label for="star3-1" class="fa-solid fa-star"></label>
+            <input type="radio" id="star2-1" name="rating" value="2"><label for="star2-1" class="fa-solid fa-star"></label>
+            <input type="radio" id="star1-1" name="rating" value="1"><label for="star1-1" class="fa-solid fa-star"></label>
+          </div>
+          <input type="hidden" name="place_uid" value="3">
+          <button type="button" class="btn-submit-review" onclick="alert('¡Gracias! Tu reseña alimenta el algoritmo de Neo4j.')">Guardar Calificación</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <img src="https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop" alt="Antigua Guatemala" class="history-img" loading="lazy">
+      <div class="history-body">
+        <div class="history-header">
+          <h3>Antigua Guatemala</h3>
+          <p>Visitado en Octubre 2025</p>
+        </div>
+        
+        <div class="rating-section" style="background: transparent; border: 1px solid #E8E5DC;">
+          <span class="rating-label" style="color: var(--green-600);">Ya calificaste este viaje</span>
+          <div style="color: #FBBF24; font-size: 18px; margin-top: 8px;">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star" style="color: var(--star-inactive);"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
