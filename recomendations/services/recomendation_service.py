@@ -254,18 +254,43 @@ class RecommendationService:
         ]
 
     def _get_image(self, place_name: str) -> str:
-        return _DEFAULT_IMAGES.get(
-            place_name,
-            "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=600&auto=format&fit=crop",
-        )
+        img = _DEFAULT_IMAGES.get(place_name)
+        if not img:
+            return "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=800&auto=format&fit=crop"
+        return img
 
 _DEFAULT_IMAGES = {
-    "Antigua Guatemala": "https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop",
-    "Lago Atitlan":      "https://images.unsplash.com/photo-1582424075549-b5cfccda7950?q=80&w=600&auto=format&fit=crop",
-    "Semuc Champey":     "https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop",
-    "Tikal, Peten":      "https://images.unsplash.com/photo-1512556798208-148886470870?q=80&w=600&auto=format&fit=crop",
-    "Rio Dulce":         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop",
-    "Monterrico":        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop",
+    "Antigua Guatemala": "https://images.unsplash.com/photo-1637966201771-b0b251baa2ef?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Lago Atitlan":      "https://images.unsplash.com/photo-1650734837526-3036e11e0e25?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFnbyUyMGF0aXRsYW58ZW58MHx8MHx8fDA%3D",
+    "Semuc Champey":     "https://images.unsplash.com/photo-1675185457371-aae4e3ea0270?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Tikal, Peten":      "https://images.unsplash.com/photo-1669025467363-ace9bad030dc?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Rio Dulce":         "https://images.unsplash.com/photo-1641581006900-97f4f6e14819?q=80&w=1633&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Monterrico":        "https://images.unsplash.com/photo-1641581006914-0a37ef759189?q=80&w=1484&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Chichicastenango":  "https://images.unsplash.com/photo-1669578718614-0dec2071ce83?q=80&w=1655&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Livingston":        "https://images.unsplash.com/photo-1641581006723-cbb37e20bd6e?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Quetzaltenango":    "https://images.unsplash.com/photo-1696511149389-a137de3d0737?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Huehuetenango":     "https://images.unsplash.com/photo-1647650585586-c119557a50f7?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Castillo de San Felipe": "https://plus.unsplash.com/premium_photo-1733342463294-946b7bec4b1f?q=80&w=1535&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "Irtra Retalhuleu":  "https://epinvestiga.com/wp-content/uploads/2022/02/DSC_0020.jpg",
+    "Volcan de Acatenango": "https://images.unsplash.com/photo-1669025466409-450f22c7561a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWNhdGVuYW5nb3xlbnwwfHwwfHx8MA%3D%3D",
+    "Fuentes Georginas": "https://www.guatemala.com/wp-content/uploads/2017/12/Fuentes-Georginas-de-Quetzaltenango.jpg",
+    "Crater Azul":       "https://upload.wikimedia.org/wikipedia/commons/7/78/Crater_azul.png",
+    "Hun Nal Ye":        "https://www.guatemala.com/fotos/2024/07/hun-nal-ye.jpg",
+    "Parque Naciones Unidas": "https://defensores.org.gt/wp-content/uploads/PNNU-2.jpg",
+    "Laguna del Pino":   "https://revistayuam.com/wp-content/uploads/2021/07/Foto-laguna-El-pino-6.jpg",
+    "Mixco Viejo":       "https://www.soy502.com/sites/default/files/styles/escalar_image_inline/public/2025/Ago/07/mixco_viejo_tesoro_ancestral_que_habla_desde_las_alturas_imperio_chapin_4037792.jpg",
+    "Iximché":           "https://tropicanahostel.com/wp-content/uploads/2025/04/Iximche-Ruins-Guatemala-e1745022124527.jpg",
+    "Hobbitenango":      "https://www.thoroughlytravel.com/wp-content/uploads/2025/10/lucy-hobbit-house-hobbitenango-antigua-guatemala-1024x768.jpg",
+    "Volcan de Pacaya":  "https://images.unsplash.com/photo-1565365906073-6d5bd6b9013c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFjYXlhfGVufDB8fDB8fHww",
+    "Finca El Amate":    "https://www.guatemala.com/fotos/2024/12/Finca-El-Amate.jpg",
+    "Cataratas Tatasirire": "https://www.prensalibre.com/wp-content/uploads/2018/12/c9b7f2fe-f5e2-4673-b112-7217704fe8e3.jpg?quality=52",
+    "Laguna de Ayarza":  "https://www.sicultura.gob.gt/wp-content/uploads/2021/03/Fotografia-Fly-GT-.jpg",
+    "Volcan de Ipala":   "https://www.volcanesdeguatemala.com/imagenes/volcanes/volcan-ipala-guatemala.jpg",
+    "Biotopo del Quetzal": "https://www.guatemala.com/fotos/2025/09/biotopo-del-quetzal.webp",
+    "San Juan Comalapa": "https://www.guatemala.com/wp-content/uploads/2019/12/Municipio-San-Juan-Comalapa-Chimaltenango.jpg",
+    "Cuevas de Candelaria": "https://www.guatevalley.com/photo/photo_a1/1352/EW3BkNUhBV3gEhLxhTAZ.jpg",
+    "El Paredon":        "https://elparedongt.com/cdn/shop/files/el-paredon-sunset-2-845x550.jpg",
+    "Tak'alik Ab'aj":    "https://upload.wikimedia.org/wikipedia/commons/0/0d/ESTRUCTURA_12_MUSEO_AL_AIRE_LIBRE_FACHADA_OESTE_-_TAKALIK_ABAJ.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=original",
 }
 
 def _generate_match_reason(rec: RecommendationScore) -> str:

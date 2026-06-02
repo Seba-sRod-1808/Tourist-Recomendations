@@ -84,7 +84,7 @@ def get_place_details_by_uid(place_uid: str):
     query = """
     MATCH (p:Place {uid: $uid})
     OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
-    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name), p.image_url
+    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name)
     """
     results, meta = db.cypher_query(query, {'uid': place_uid})
     if not results or not results[0][0]:
@@ -104,14 +104,14 @@ def get_place_details_by_uid(place_uid: str):
         'category': ' '.join(categorias_lista) if categorias_lista else 'General',
         'tag': categorias_lista[0].capitalize() if categorias_lista else 'Destino',
         'match_reason': 'Sugerido por nuestro algoritmo basado en tus preferencias.',
-        'image': row[7] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee' 
+        'image': RecommendationService()._get_image(row[1]) 
     }
 
 def get_all_places():
     query = """
     MATCH (p:Place)
     OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
-    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name), p.image_url
+    RETURN p.uid, p.name, p.cost, p.popularity, p.lat, p.lng, collect(c.name)
     """
     results, meta = db.cypher_query(query)
     
@@ -128,7 +128,7 @@ def get_all_places():
             'categories': categorias_lista,
             'category': ' '.join(categorias_lista),
             'tag': categorias_lista[0].capitalize() if categorias_lista else "Destino",
-            'image': row[7] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee'
+            'image': RecommendationService()._get_image(row[1])
         })
     return places
 
@@ -137,7 +137,6 @@ def get_visited_places(django_user_id):
     MATCH (s:Student {django_user_id: $user_id})-[r:VISITED]->(p:Place)
     RETURN p.uid AS uid, 
            p.name AS name, 
-           p.image AS image, 
            r.rating AS rating, 
            r.timestamp AS date
     """
@@ -148,9 +147,9 @@ def get_visited_places(django_user_id):
         visited.append({
             'uid': row[0],
             'name': row[1],
-            'image': row[2] or 'https://images.unsplash.com/photo-1526487046039-335a122851ee',
-            'rating': row[3], 
-            'date': row[4]
+            'image': RecommendationService()._get_image(row[1]),
+            'rating': row[2], 
+            'date': row[3]
         })
     return visited
 
