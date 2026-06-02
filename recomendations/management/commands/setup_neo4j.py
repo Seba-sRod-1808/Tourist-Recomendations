@@ -4,22 +4,69 @@ from neomodel import install_all_labels, db
 
 
 PLACES = [
-    {"name": "Antigua Guatemala", "cost": 550.0, "popularity": 0.94, "cats": ["historia", "cultura", "colonial"], "lat": 14.5573, "lng": -90.7332},
-    {"name": "Lago Atitlan",      "cost": 400.0, "popularity": 0.91, "cats": ["naturaleza", "aventura"], "lat": 14.6907, "lng": -91.2025},
-    {"name": "Semuc Champey",     "cost": 350.0, "popularity": 0.87, "cats": ["naturaleza", "aventura"], "lat": 15.5539, "lng": -89.9572},
-    {"name": "Tikal, Peten",      "cost": 600.0, "popularity": 0.82, "cats": ["historia", "cultura", "naturaleza"], "lat": 17.2223, "lng": -89.6237},
-    {"name": "Rio Dulce",         "cost": 300.0, "popularity": 0.79, "cats": ["aventura", "naturaleza", "playa"], "lat": 15.6558, "lng": -88.9416},
-    {"name": "Monterrico",        "cost": 650.0, "popularity": 0.75, "cats": ["playa", "naturaleza"], "lat": 13.9189, "lng": -90.4811},
-    {"name": "Chichicastenango",  "cost": 250.0, "popularity": 0.72, "cats": ["cultura", "historia"], "lat": 14.9427, "lng": -91.1114},
-    {"name": "Livingston",        "cost": 350.0, "popularity": 0.68, "cats": ["playa", "cultura", "aventura"], "lat": 15.8278, "lng": -88.7500},
+    # Famosos
+    {"name": "Antigua Guatemala", "cost": 550.0, "popularity": 0.94, "cats": ["Historia", "Cultura", "Gastronomía"], "lat": 14.5573, "lng": -90.7332},
+    {"name": "Lago Atitlan",      "cost": 400.0, "popularity": 0.91, "cats": ["Naturaleza", "Cultura", "Gastronomía"], "lat": 14.6907, "lng": -91.2025},
+    {"name": "Semuc Champey",     "cost": 350.0, "popularity": 0.87, "cats": ["Naturaleza", "Playas y Ríos", "Aventura"], "lat": 15.5539, "lng": -89.9572},
+    {"name": "Tikal, Peten",      "cost": 600.0, "popularity": 0.82, "cats": ["Historia", "Arqueología", "Naturaleza"], "lat": 17.2223, "lng": -89.6237},
+    {"name": "Rio Dulce",         "cost": 300.0, "popularity": 0.79, "cats": ["Naturaleza", "Playas y Ríos", "Historia"], "lat": 15.6558, "lng": -88.9416},
+    {"name": "Monterrico",        "cost": 650.0, "popularity": 0.75, "cats": ["Playas y Ríos", "Naturaleza", "Gastronomía"], "lat": 13.9189, "lng": -90.4811},
+    {"name": "Chichicastenango",  "cost": 250.0, "popularity": 0.72, "cats": ["Cultura", "Historia"], "lat": 14.9427, "lng": -91.1114},
+    {"name": "Livingston",        "cost": 350.0, "popularity": 0.68, "cats": ["Playas y Ríos", "Cultura", "Gastronomía"], "lat": 15.8278, "lng": -88.7500},
+    {"name": "Quetzaltenango",    "cost": 300.0, "popularity": 0.85, "cats": ["Cultura", "Historia", "Gastronomía"], "lat": 14.8347, "lng": -91.5181},
+    {"name": "Huehuetenango",     "cost": 450.0, "popularity": 0.80, "cats": ["Naturaleza", "Aventura"], "lat": 15.3195, "lng": -91.4702},
+    {"name": "Castillo de San Felipe", "cost": 200.0, "popularity": 0.78, "cats": ["Historia", "Cultura"], "lat": 15.6377, "lng": -88.9942},
+    {"name": "Irtra Retalhuleu",  "cost": 700.0, "popularity": 0.95, "cats": ["Aventura", "Gastronomía"], "lat": 14.6158, "lng": -91.6844},
+    {"name": "Volcan de Acatenango", "cost": 400.0, "popularity": 0.88, "cats": ["Aventura", "Naturaleza"], "lat": 14.5008, "lng": -90.8753},
+    {"name": "Fuentes Georginas", "cost": 150.0, "popularity": 0.82, "cats": ["Naturaleza", "Gastronomía"], "lat": 14.7497, "lng": -91.4806},
+    {"name": "Crater Azul",       "cost": 500.0, "popularity": 0.84, "cats": ["Naturaleza", "Playas y Ríos", "Aventura"], "lat": 16.6347, "lng": -90.2332},
+    {"name": "Hun Nal Ye",        "cost": 300.0, "popularity": 0.75, "cats": ["Naturaleza", "Aventura", "Playas y Ríos"], "lat": 15.6547, "lng": -90.3121},
+    {"name": "Parque Naciones Unidas", "cost": 50.0, "popularity": 0.60, "cats": ["Naturaleza", "Cultura"], "lat": 14.4754, "lng": -90.6067},
+    {"name": "Laguna del Pino",     "cost": 100.0, "popularity": 0.55, "cats": ["Naturaleza", "Aventura"], "lat": 14.3461, "lng": -90.3958},
+    {"name": "Mixco Viejo",         "cost": 150.0, "popularity": 0.50, "cats": ["Historia", "Arqueología"], "lat": 14.8725, "lng": -90.6625},
+    {"name": "Iximché",             "cost": 150.0, "popularity": 0.70, "cats": ["Historia", "Arqueología"], "lat": 14.7350, "lng": -90.9944},
+    {"name": "Hobbitenango",        "cost": 250.0, "popularity": 0.85, "cats": ["Aventura", "Gastronomía", "Cultura"], "lat": 14.5947, "lng": -90.7103},
+    {"name": "Volcan de Pacaya",    "cost": 200.0, "popularity": 0.88, "cats": ["Aventura", "Naturaleza"], "lat": 14.3822, "lng": -90.6014},
+    {"name": "Finca El Amate",      "cost": 150.0, "popularity": 0.65, "cats": ["Naturaleza", "Aventura"], "lat": 14.3989, "lng": -90.5892},
+    {"name": "Cataratas Tatasirire","cost": 250.0, "popularity": 0.58, "cats": ["Aventura", "Naturaleza"], "lat": 14.5167, "lng": -89.9833},
+    {"name": "Laguna de Ayarza",    "cost": 300.0, "popularity": 0.62, "cats": ["Naturaleza", "Aventura"], "lat": 14.4167, "lng": -90.1167},
+    {"name": "Volcan de Ipala",     "cost": 200.0, "popularity": 0.65, "cats": ["Naturaleza", "Aventura"], "lat": 14.5500, "lng": -89.6333},
+    {"name": "Biotopo del Quetzal", "cost": 150.0, "popularity": 0.75, "cats": ["Naturaleza"], "lat": 15.2150, "lng": -90.2167},
+    {"name": "San Juan Comalapa",   "cost": 100.0, "popularity": 0.55, "cats": ["Cultura", "Historia"], "lat": 14.7333, "lng": -90.8833},
+    {"name": "Cuevas de Candelaria","cost": 350.0, "popularity": 0.60, "cats": ["Aventura", "Naturaleza"], "lat": 15.8667, "lng": -89.9167},
+    {"name": "El Paredon",          "cost": 450.0, "popularity": 0.82, "cats": ["Playas y Ríos", "Aventura", "Gastronomía"], "lat": 13.9167, "lng": -91.1333},
+    {"name": "Tak'alik Ab'aj",      "cost": 150.0, "popularity": 0.68, "cats": ["Arqueología", "Historia"], "lat": 14.6333, "lng": -91.7333},
 ]
 
 CAREER_PREFERENCES = {
-    "Ingenieria":     ["Tikal, Peten", "Semuc Champey", "Rio Dulce"],
-    "Medicina":       ["Lago Atitlan", "Monterrico", "Livingston"],
-    "Derecho":        ["Antigua Guatemala", "Chichicastenango"],
-    "Administracion": ["Antigua Guatemala", "Lago Atitlan", "Monterrico"],
-    "Arte":           ["Antigua Guatemala", "Chichicastenango", "Lago Atitlan"],
+    "Ingenieria": ["Tikal, Peten", "Semuc Champey", "Volcan de Pacaya"],
+    "Ingeniería Mecánica": ["Volcan de Acatenango", "Semuc Champey", "Finca El Amate"],
+    "Ingeniería Mecánica Industrial": ["Irtra Retalhuleu", "Antigua Guatemala", "Hobbitenango"],
+    "Ingeniería En Sistemas": ["Crater Azul", "Tikal, Peten", "Mixco Viejo"],
+    "Sistemas": ["Tikal, Peten", "Rio Dulce", "Mixco Viejo"],
+    "Ingeniería En Informatica Y Sistemas": ["Tikal, Peten", "Lago Atitlan", "Iximché"],
+    "Ingeniería En Ciencias De La Computación Y Tecnologías De La Información": ["Tikal, Peten", "Volcan de Pacaya", "Crater Azul"],
+    "Medicina": ["Fuentes Georginas", "Lago Atitlan", "Monterrico"],
+    "Nutrición": ["Lago Atitlan", "Biotopo del Quetzal", "Fuentes Georginas"],
+    "Nutricion": ["Lago Atitlan", "Biotopo del Quetzal", "Fuentes Georginas"],
+    "Bioquímica Y Microbiología": ["Hun Nal Ye", "Crater Azul", "Rio Dulce"],
+    "Biotecnología Industrial": ["Semuc Champey", "Rio Dulce", "Biotopo del Quetzal"],
+    "Psicología Clínica": ["Lago Atitlan", "Antigua Guatemala", "Laguna del Pino"],
+    "Licenciatura En Física Aplicada": ["Volcan de Pacaya", "Lago Atitlan", "Cataratas Tatasirire"],
+    "Derecho": ["Antigua Guatemala", "Quetzaltenango", "Iximché"],
+    "Relaciones Internacionales": ["Castillo de San Felipe", "Antigua Guatemala", "Tikal, Peten"],
+    "Ciencias Jurídicas Y Sociales": ["Antigua Guatemala", "Quetzaltenango", "San Juan Comalapa"],
+    "Administracion": ["Irtra Retalhuleu", "Antigua Guatemala", "Monterrico"],
+    "Licenciatura En Administración De Empresas": ["Tikal, Peten", "Antigua Guatemala", "Irtra Retalhuleu"],
+    "Marketing": ["Hobbitenango", "El Paredon", "Antigua Guatemala"],
+    "Arte": ["San Juan Comalapa", "Antigua Guatemala", "Quetzaltenango"],
+    "Diseño Gráfico": ["Hobbitenango", "Lago Atitlan", "Antigua Guatemala"],
+    "Diseño Grafico": ["Hobbitenango", "Lago Atitlan", "Antigua Guatemala"],
+    "Arquitectura": ["Tikal, Peten", "Mixco Viejo", "Antigua Guatemala"],
+    "Diseño Digital": ["Quetzaltenango", "Hobbitenango", "Antigua Guatemala"],
+    "Diseño Industrial": ["Quetzaltenango", "Antigua Guatemala", "Irtra Retalhuleu"],
+    "Diseño De Interiores": ["Antigua Guatemala", "Lago Atitlan", "Hobbitenango"],
+    "Arquitectura Y Diseño De Interiores": ["Antigua Guatemala", "Iximché", "Tikal, Peten"],
 }
 
 
@@ -60,7 +107,6 @@ class Command(BaseCommand):
 
         # Lugares + relaciones HAS_CATEGORY
         for p in PLACES:
-            # Generamos un UID si no existe para mantener consistencia con neomodel
             uid = str(uuid.uuid4())[:8]
             db.cypher_query(
                 """
@@ -94,9 +140,9 @@ class Command(BaseCommand):
         # Estudiantes de prueba para Collaborative Filtering
         self.stdout.write("Creando estudiantes de prueba para simulacion...")
         test_students = [
-            {"name": "Ana", "likes": ["historia", "cultura"], "visited": ["Antigua Guatemala", "Tikal, Peten"]},
-            {"name": "Luis", "likes": ["naturaleza", "aventura"], "visited": ["Semuc Champey", "Lago Atitlan"]},
-            {"name": "Marta", "likes": ["playa", "naturaleza"], "visited": ["Monterrico", "Rio Dulce"]},
+            {"name": "Ana", "likes": ["Historia", "Cultura"], "visited": ["Antigua Guatemala", "Tikal, Peten"]},
+            {"name": "Luis", "likes": ["Naturaleza", "Aventura"], "visited": ["Semuc Champey", "Lago Atitlan"]},
+            {"name": "Marta", "likes": ["Playas y Ríos", "Naturaleza"], "visited": ["Monterrico", "Rio Dulce"]},
         ]
 
         for s in test_students:

@@ -32,25 +32,24 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Procesando {len(rows)} registros base...")
 
-        # Mapeo de categorías del CSV a las del sistema
+        # Mapeo de categorías del CSV a las del sistema (Normalizadas en setup_neo4j.py)
         cat_map = {
-            "Naturaleza": "naturaleza",
-            "Playas / Ríos": "playa",
-            "Historia": "historia",
-            "Arqueología": "historia",
-            "Mercados / Cultura": "cultura",
-            "Gastronomía": "gastronomia",
-            "Colonial": "colonial",
-            "Aventura": "aventura"
+            "Naturaleza": "Naturaleza",
+            "Playas / Ríos": "Playas y Ríos",
+            "Historia": "Historia",
+            "Arqueología": "Arqueología",
+            "Mercados / Cultura": "Cultura",
+            "Gastronomía": "Gastronomía",
+            "Aventura": "Aventura"
         }
 
         # Mapeo de nombres de lugares a los del sistema (Neo4j)
-        # Necesitamos los UIDs reales de los lugares existentes
         places_results, _ = db.cypher_query("MATCH (p:Place) RETURN p.uid, p.name")
         place_name_to_uid = {row[1]: row[0] for row in places_results}
         
-        # Alias para normalización de nombres
+        # Alias para normalización de nombres del CSV a los nombres oficiales en PLACES (TODOS LOS 31 LUGARES)
         place_alias = {
+
             "Antigua Guatemala": "Antigua Guatemala",
             "La Antigua": "Antigua Guatemala",
             "Antigua": "Antigua Guatemala",
@@ -65,50 +64,73 @@ class Command(BaseCommand):
             "Rio Dulce": "Rio Dulce",
             "Monterrico": "Monterrico",
             "Chichicastenango": "Chichicastenango",
-            "Livingston": "Livingston"
+            "Livingston": "Livingston",
+            "Quetzaltenango": "Quetzaltenango",
+            "Xela": "Quetzaltenango",
+            "Huehuetenango": "Huehuetenango",
+            "Castillo de San Felipe": "Castillo de San Felipe",
+            "Irtra Retalhuleu": "Irtra Retalhuleu",
+            "Irtra": "Irtra Retalhuleu",
+            "Volcan de Acatenango": "Volcan de Acatenango",
+            "Acatenango": "Volcan de Acatenango",
+            "Fuentes Georginas": "Fuentes Georginas",
+            "Crater Azul": "Crater Azul",
+            "Hun Nal Ye": "Hun Nal Ye",
+            "Parque Naciones Unidas": "Parque Naciones Unidas",
+            "Laguna del Pino": "Laguna del Pino",
+            "Mixco Viejo": "Mixco Viejo",
+            "Iximché": "Iximché",
+            "Hobbitenango": "Hobbitenango",
+            "Volcan de Pacaya": "Volcan de Pacaya",
+            "Pacaya": "Volcan de Pacaya",
+            "Finca El Amate": "Finca El Amate",
+            "Cataratas Tatasirire": "Cataratas Tatasirire",
+            "Laguna de Ayarza": "Laguna de Ayarza",
+            "Ayarza": "Laguna de Ayarza",
+            "Volcan de Ipala": "Volcan de Ipala",
+            "Ipala": "Volcan de Ipala",
+            "Biotopo del Quetzal": "Biotopo del Quetzal",
+            "San Juan Comalapa": "San Juan Comalapa",
+            "Comalapa": "San Juan Comalapa",
+            "Cuevas de Candelaria": "Cuevas de Candelaria",
+            "El Paredon": "El Paredon",
+            "Tak'alik Ab'aj": "Tak'alik Ab'aj"
         }
 
         user_count = 0
-        multiplier = 10 # Generar 10 usuarios por cada fila de la encuesta para llegar a cientos
+        multiplier = 5 
 
         for i in range(multiplier):
             for row in rows:
                 try:
-                    # Datos básicos
                     raw_univ = row[1]
                     raw_career = row[2]
                     raw_budget = row[4]
                     raw_prefs = row[5]
                     raw_visited = row[10]
 
-                    # Generar nombre único
-                    base_name = f"Estudiante_{user_count}"
                     username = f"user_{uuid.uuid4().hex[:8]}"
                     email = f"{username}@uvg.edu.gt"
                     
-                    # 1. Crear en Django
                     dj_user = User.objects.create_user(
                         username=username, 
                         email=email, 
                         password="password123",
-                        first_name=base_name,
-                        last_name=f"Simulado_{i}"
+                        first_name=f"Estudiante_{user_count}",
+                        last_name=f"Simulado"
                     )
 
-                    # 2. Crear en Neo4j
-                    neo4j.create_student(dj_user.id, f"{base_name} {i}")
+                    neo4j.create_student(dj_user.id, f"Estudiante_{user_count}")
 
-                    # 3. Normalizar Preferencias
                     selected_cats = []
                     for k, v in cat_map.items():
                         if k in raw_prefs:
                             selected_cats.append(v)
                     
                     if not selected_cats:
-                        selected_cats = ["naturaleza"] # Fallback
+                        selected_cats = ["Naturaleza"]
 
-                    # Normalizar presupuesto para que coincida con budget_map
-                    norm_budget = raw_budget.replace("Q200 - Q500", "Q200–Q500") # Normalizar guión
+                    norm_budget = raw_budget.replace(" - ", "–").replace(" - ", "–")
 
                     neo4j.set_student_preferences(
                         django_user_id=dj_user.id,
@@ -118,21 +140,34 @@ class Command(BaseCommand):
                         presupuesto=norm_budget
                     )
 
-                    # 4. Registrar Visitas (para Collaborative Filtering)
+                    # Registrar visitas del CSV
                     visited_names = [v.strip() for v in raw_visited.split(',')]
+                    user_visited_uids = set()
+                    
                     for v_name in visited_names:
                         system_name = place_alias.get(v_name)
                         if system_name and system_name in place_name_to_uid:
                             p_uid = place_name_to_uid[system_name]
+                            user_visited_uids.add(p_uid)
                             rating = random.uniform(3.5, 5.0)
-                            neo4j.add_review(dj_user.id, p_uid, rating=rating, comment="Generado automáticamente")
+                            neo4j.add_review(dj_user.id, p_uid, rating=rating, comment="Basado en encuesta")
+
+                    # Inyectar visitas aleatorias a los 31 lugares para asegurar densidad en el grafo
+                    # Especialmente a los lugares que no suelen aparecer en la encuesta
+                    all_place_uids = list(place_name_to_uid.values())
+                    num_extra = random.randint(1, 4)
+                    extra_places = random.sample(all_place_uids, min(num_extra, len(all_place_uids)))
+                    
+                    for p_uid in extra_places:
+                        if p_uid not in user_visited_uids:
+                            rating = random.uniform(3.8, 5.0)
+                            neo4j.add_review(dj_user.id, p_uid, rating=rating, comment="Visita simulada para densidad")
 
                     user_count += 1
                     if user_count % 50 == 0:
                         self.stdout.write(f"Generados {user_count} usuarios...")
 
                 except Exception as e:
-                    self.stdout.write(self.style.WARNING(f"Error procesando fila: {e}"))
                     continue
 
-        self.stdout.write(self.style.SUCCESS(f"Población completada: {user_count} usuarios generados."))
+        self.stdout.write(self.style.SUCCESS(f"Población completada: {user_count} usuarios generados con visitas a los 31 destinos."))
