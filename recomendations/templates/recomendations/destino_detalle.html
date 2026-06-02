@@ -7,43 +7,100 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-  :root { --green-600: #3B6D11; --gray-400: #888780; --gray-900: #2C2C2A; }
-  body { font-family: 'DM Sans', sans-serif; background: #111; color: #fff; margin: 0; }
+  :root { 
+    --green-50: #EAF3DE;
+    --green-600: #3B6D11; 
+    --gray-400: #888780; 
+    --gray-900: #2C2C2A; 
+    --radius-md: 12px;
+  }
   
-  /* Botón de regreso flotante */
-  .btn-back { position: absolute; top: 30px; left: 40px; background: rgba(0,0,0,0.5); color: #fff; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 500; z-index: 10; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: 0.2s; }
-  .btn-back:hover { background: rgba(255,255,255,0.2); }
+  * { box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #111; color: #fff; margin: 0; padding: 0; overflow-x: hidden; }
+  
+  /* Botón de regreso flotante - Adaptado para pulgares */
+  .btn-back { 
+    position: absolute; top: 20px; left: 20px; 
+    background: rgba(0,0,0,0.6); color: #fff; 
+    padding: 10px 16px; border-radius: 30px; 
+    text-decoration: none; font-size: 14px; font-weight: 500; 
+    z-index: 10; backdrop-filter: blur(8px); 
+    border: 1px solid rgba(255,255,255,0.2); transition: 0.2s; 
+  }
+  .btn-back:hover { background: rgba(255,255,255,0.3); }
 
-  /* Hero Banner estilo Netflix */
-  .hero-banner { width: 100%; height: 70vh; position: relative; display: flex; align-items: flex-end; padding-bottom: 50px; }
-  .hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.7; }
-  .hero-gradient { position: absolute; bottom: 0; width: 100%; height: 100%; background: linear-gradient(to top, #111 0%, transparent 100%); z-index: 1; }
+  /* Hero Banner Estilo Cinematográfico (Móvil) */
+  .hero-banner { 
+    width: 100%; min-height: 80vh; 
+    position: relative; display: flex; 
+    align-items: flex-end; padding: 80px 0 40px; 
+  }
+  .hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.6; }
+  .hero-gradient { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #111 15%, rgba(17,17,17,0.4) 60%, transparent 100%); z-index: 1; }
   
-  .content { position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; width: 100%; padding: 0 40px; }
+  .content { position: relative; z-index: 2; width: 100%; padding: 0 1.5rem; }
   
-  .title { font-family: 'Fraunces', serif; font-size: 64px; margin: 0 0 10px; line-height: 1.1; }
+  /* Título fluido */
+  .title { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 12px; line-height: 1.1; letter-spacing: -0.5px; }
   
-  .meta-data { display: flex; align-items: center; gap: 20px; font-size: 16px; font-weight: 500; margin-bottom: 25px; }
-  .match-score { color: #4ADE80; font-weight: 700; font-size: 18px; }
-  .tag { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; }
+  /* Bloque de Metadatos */
+  .meta-data { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; margin-bottom: 20px; }
+  .match-score { color: #4ADE80; font-weight: 700; font-size: 16px; }
+  .tag { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
   
-  .description { font-size: 18px; line-height: 1.6; max-width: 600px; color: #D3D1C7; margin-bottom: 30px; }
+  .description { font-size: 15px; line-height: 1.6; color: #D3D1C7; margin: 0 0 24px; max-width: 600px; }
   
-  .actions { display: flex; gap: 15px; }
-  .btn-primary { background: #fff; color: #000; padding: 15px 35px; border-radius: 8px; font-size: 18px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+  /* Botones de acción apilados en móvil */
+  .actions { display: flex; flex-direction: column; gap: 12px; }
+  .btn-primary, .btn-secondary { 
+    width: 100%; padding: 14px; border-radius: var(--radius-md); 
+    font-size: 15px; font-weight: 700; text-decoration: none; 
+    display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; 
+  }
+  .btn-primary { background: #fff; color: #000; }
   .btn-primary:hover { background: #e5e5e5; }
-  .btn-secondary { background: rgba(109, 109, 110, 0.7); color: #fff; padding: 15px 35px; border-radius: 8px; font-size: 18px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
-  .btn-secondary:hover { background: rgba(109, 109, 110, 0.4); }
+  .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
 
-  /* Info adicional */
-  .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; display: grid; grid-template-columns: 2fr 1fr; gap: 50px; }
-  .info-box h3 { color: var(--gray-400); font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
-  .info-box p { font-size: 16px; margin-top: 0; }
+  /* Info adicional en formato vertical por defecto */
+  .details-section { padding: 2rem 1.5rem; display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+  
+  .details-content h2 { font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 12px; }
+  .details-content p { color: #D3D1C7; line-height: 1.6; font-size: 15px; margin: 0; }
+  
+  .sidebar-info { display: flex; flex-direction: column; gap: 20px; }
+  .info-box { background: #1A1A1A; padding: 20px; border-radius: var(--radius-md); border: 1px solid #2A2A2A; }
+  .info-box h3 { color: var(--gray-400); font-size: 11px; text-transform: uppercase; margin: 0 0 6px; letter-spacing: 1px; }
+  .info-box p { font-size: 16px; margin: 0; font-weight: 500; }
+
+  /* =========================================
+     MEDIA QUERIES (VERSION DE ESCRITORIO)
+     ========================================= */
+  @media (min-width: 768px) {
+    .btn-back { top: 30px; left: 40px; padding: 10px 20px; }
+    .hero-banner { min-height: 70vh; padding-bottom: 50px; }
+    .content { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+    .title { font-size: 64px; }
+    .meta-data { font-size: 16px; gap: 20px; }
+    .match-score { font-size: 18px; }
+    .description { font-size: 17px; }
+    
+    /* Botones en horizontal para pantallas grandes */
+    .actions { flex-direction: row; gap: 15px; }
+    .btn-primary, .btn-secondary { width: auto; padding: 14px 28px; }
+    
+    /* Grid de dos columnas en escritorio */
+    .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; grid-template-columns: 2fr 1fr; gap: 50px; }
+    .details-content h2 { font-size: 28px; }
+    .details-content p { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
 
-<a href="{% url 'recommendations' %}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Volver al Catálogo</a>
+<a href="{% url 'recommendations' %}" class="btn-back">
+  <i class="fa-solid fa-arrow-left"></i> Volver
+</a>
 
 <div class="hero-banner">
   <img src="{{ destino.image }}" alt="{{ destino.name }}" class="hero-img">
@@ -54,29 +111,30 @@
     
     <div class="meta-data">
       <span class="match-score">{{ destino.score }}% Match Universitario</span>
-      <span>Costo est.: Q{{ destino.cost }}</span>
+      <span>Presupuesto: Q{{ destino.cost }}</span>
       <span class="tag">{{ destino.tag }}</span>
     </div>
     
     <p class="description">
-      {{ destino.match_reason }} Este destino encaja perfectamente con tu perfil y las preferencias de otros estudiantes de tu misma facultad.
+      {{ destino.match_reason }} Este destino encaja perfectamente con tu perfil y las tendencias de viaje de tu comunidad académica.
     </p>
     
     <div class="actions">
       <a href="#" class="btn-primary"><i class="fa-solid fa-map-location-dot"></i> Ver en Mapa</a>
-      <a href="#" class="btn-secondary"><i class="fa-solid fa-heart"></i> Guardar en Favoritos</a>
+      <a href="#" class="btn-secondary"><i class="fa-solid fa-heart"></i> Guardar Destino</a>
     </div>
   </div>
 </div>
 
 <div class="details-section">
-  <div>
-    <h2 style="font-family: 'Fraunces', serif; font-size: 28px;">Por qué te lo recomendamos</h2>
-    <p style="color: #D3D1C7; line-height: 1.6; font-size: 18px;">
-      Nuestro algoritmo de grafos en Neo4j cruzó tus preferencias de presupuesto y categorías con el historial de más de cientos de estudiantes. Al seleccionar que sueles viajar con <strong>Amigos</strong>, este lugar destacó por su infraestructura ideal para grupos universitarios.
+  <div class="details-content">
+    <h2>Por qué te lo recomendamos</h2>
+    <p>
+      Nuestro algoritmo de grafos en Neo4j cruzó tus preferencias de presupuesto y categorías con el historial de más de cientos de estudiantes. Al evaluar variables colectivas en tu entorno, este lugar destacó por su infraestructura ideal para grupos universitarios y escapadas de fin de semana.
     </p>
   </div>
-  <div>
+  
+  <div class="sidebar-info">
     <div class="info-box">
       <h3>Categorías del Destino</h3>
       <p style="text-transform: capitalize;">{{ destino.category }}</p>
