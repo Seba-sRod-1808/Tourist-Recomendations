@@ -199,28 +199,47 @@ def perfil_view(request):
 
 @login_required(login_url='login')
 def destino_detalle_view(request, uid):
-    destino = neo4j.get_place_details_by_uid(uid)
+    print(f"\n--- DEBUG: Clic en botón. Buscando UID: {uid} ---")
+    destino = None
+    
+    try:
+        destino = neo4j.get_place_details_by_uid(str(uid))
+        print(f"DEBUG: ¿Encontrado en Neo4j? -> {'SÍ' if destino else 'NO'}")
+        
+        if destino and 'popularity' in destino:
+            destino['score'] = int((destino['popularity'] or 0.5) * 100)
+    except Exception as e:
+        print(f"DEBUG Error Crítico en Neo4j: {e}")
+
     if not destino:
-        destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
+        print("DEBUG: Buscando en MOCK_DESTINATIONS como respaldo...")
+        destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
+        print(f"DEBUG: ¿Encontrado en MOCK? -> {'SÍ' if destino else 'NO'}")
+
     if not destino:
+        print("DEBUG: Destino fantasma. No existe en BD ni en MOCK. Redirigiendo...")
         return redirect('recommendations') 
+        
+    print("DEBUG: ¡Éxito! Renderizando HTML.")
     return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
 
 @login_required(login_url='login')
 def explorar_view(request):
     query = request.GET.get('q', '').lower()
+    categoria = request.GET.get('categoria', '')
     try:
         destinations = neo4j.get_all_places()
-        if not destinations:
-            destinations = MOCK_DESTINATIONS
     except Exception as e:
         print(f"Neo4j get_all_places error: {e}")
         destinations = MOCK_DESTINATIONS
     if query:
         destinations = [d for d in destinations if query in d['name'].lower()]
+    if categoria:
+        destinations = [d for d in destinations if categoria.lower() in d.get('category', '').lower() or categoria.lower() in d.get('tag', '').lower()]
     context = {
         'user_name': request.user.first_name or request.user.email,
-        'destinations': destinations
+        'destinations': destinations,
+        'categoria_actual': categoria 
     }
     return render(request, 'recomendations/explorar.html', context)
 
@@ -234,11 +253,17 @@ def mis_viajes_view(request):
 
 @login_required(login_url='login')
 def destino_detalle_view(request, uid):
-    destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
-    
+    destino = None
+    try:
+        destino = neo4j.get_place_details_by_uid(str(uid))
+        if destino and 'popularity' in destino:
+            destino['score'] = int((destino['popularity'] or 0.5) * 100)
+    except Exception as e:
+        print(f"Error al buscar detalle en Neo4j: {e}")
     if not destino:
-        messages.error(request, 'El destino que buscas no se encuentra disponible.')
-        return redirect('recommendations')
+        destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
+    if not destino:
+        return redirect('recommendations') 
         
     return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
 

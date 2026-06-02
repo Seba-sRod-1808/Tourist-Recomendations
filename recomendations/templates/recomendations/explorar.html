@@ -12,159 +12,245 @@
     --gray-50: #F1EFE8; --gray-400: #888780; --gray-600: #5F5E5A; --gray-900: #2C2C2A;
     --radius-md: 12px; --radius-lg: 20px;
   }
+  
   * { box-sizing: border-box; }
-  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; padding-bottom: 3rem; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; }
 
-  /* Navbar superior */
+  /* --- NAVEGACIÓN --- */
   nav {
     background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-    border-bottom: 1px solid #E8E5DC; padding: 0 1.5rem; height: 64px;
+    border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
   }
-  .nav-brand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--green-600); text-decoration: none; }
+  
+  .nav-actions { display: flex; align-items: center; gap: 24px; }
+
+  .nav-link {
+    color: var(--gray-600); font-size: 15px; font-weight: 500; text-decoration: none; 
+    transition: color 0.2s; display: flex; align-items: center; gap: 6px;
+  }
+  .nav-link:hover { color: var(--green-600); }
+  
+  .fav-link { color: var(--green-600); font-size: 22px; text-decoration: none; transition: transform 0.2s; }
+  .fav-link:hover { transform: scale(1.1); }
+
+  /* --- MENU USUARIO --- */
+  .nav-user-container { position: relative; display: inline-block; }
+  .user-trigger { 
+    display: flex; align-items: center; gap: 10px; cursor: pointer; 
+    padding: 4px 12px 4px 4px; border-radius: 30px; border: 1px solid transparent; transition: all 0.2s; 
+  }
+  .user-trigger:hover { background: #fff; border-color: #E8E5DC; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   
   .avatar-circle { 
-    width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); 
+    width: 36px; height: 36px; border-radius: 50%; background: var(--green-600); 
     color: #fff; display: flex; align-items: center; justify-content: center; 
-    font-weight: 700; font-size: 14px; font-family: 'Fraunces', serif; 
+    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; flex-shrink: 0;
   }
-
-  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
-
-  /* Barra de Búsqueda de tu Prototipo */
-  .search-wrapper { margin-bottom: 1.5rem; position: relative; }
-  .search-input {
-    width: 100%; padding: 14px 16px 14px 44px; border: 1px solid #E8E5DC;
-    border-radius: var(--radius-md); font-family: 'DM Sans', sans-serif;
-    font-size: 15px; background: #fff; color: var(--gray-900); outline: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s;
-  }
-  .search-input:focus { border-color: var(--green-600); box-shadow: 0 4px 12px rgba(59,109,17,0.08); }
-  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 16px; }
-
-  /* Carrusel de Filtros de tu Prototipo */
-  .filters-scroll {
-    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 1.5rem;
-    scrollbar-width: none; /* Ocultar scrollbar en Firefox */
-  }
-  .filters-scroll::-webkit-scrollbar { display: none; /* Ocultar scrollbar en Chrome/Safari */ }
+  .user-name-text { font-size: 14px; font-weight: 500; color: var(--gray-900); }
   
-  .filter-pill {
-    background: #fff; border: 1px solid #E8E5DC; border-radius: 20px;
-    padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--gray-600);
-    text-decoration: none; white-space: nowrap; transition: all 0.2s;
+  .dropdown-menu { 
+    position: absolute; top: 110%; right: 0; background: #fff; width: 220px; 
+    border-radius: 12px; border: 1px solid #E8E5DC; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    display: none; flex-direction: column; padding: 8px; z-index: 200; 
   }
-  .filter-pill.active {
-    background: var(--green-600); color: #fff; border-color: var(--green-600); font-weight: 700;
+  .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .dropdown-item { 
+    padding: 10px 16px; color: var(--gray-600); text-decoration: none; font-size: 14px; 
+    font-weight: 500; border-radius: 8px; display: flex; align-items: center; gap: 10px; transition: 0.2s; 
+  }
+  .dropdown-item:hover { background: var(--gray-50); color: var(--green-600); }
+  .dropdown-divider { height: 1px; background: #E8E5DC; margin: 6px 0; }
+
+  /* --- HEADER Y BUSCADOR --- */
+  .page-header { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 1.5rem; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); }
+  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; }
+
+  .search-container { max-width: 1100px; margin: 0 auto 2rem; padding: 0 2rem; }
+  .search-box {
+    display: flex; align-items: center; background: #fff; border: 1px solid #E8E5DC;
+    border-radius: 30px; padding: 8px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .search-box i { color: var(--gray-400); font-size: 16px; margin-right: 12px; }
+  .search-box input {
+    flex-grow: 1; border: none; outline: none; font-size: 15px; font-family: 'DM Sans', sans-serif;
+    color: var(--gray-900); background: transparent; padding: 8px 0;
+  }
+  .search-box button {
+    background: var(--green-600); color: #fff; border: none; padding: 8px 20px;
+    border-radius: 20px; font-weight: 500; cursor: pointer; transition: 0.2s;
+  }
+  .search-box button:hover { background: var(--green-800); }
+
+  /* --- FILTROS (PILLS) --- */
+  .filters-bar {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .filter-btn {
+    text-decoration: none; padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 500;
+    border: 1px solid #D3D1C7; background: #fff; color: var(--gray-600); transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .filter-btn:hover { border-color: var(--green-600); color: var(--green-600); }
+  .filter-btn.active {
+    background: var(--green-600); border-color: var(--green-600); color: #fff;
   }
 
-  /* Catálogo de Tarjetas (Filtro Abierto) */
-  .catalog-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-
+  /* --- GRID Y TARJETAS --- */
+  .grid {
+    max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  }
   .card {
     background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
-    overflow: hidden; position: relative; transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+    display: flex; flex-direction: column; height: 100%;
   }
-  .card-img { width: 100%; height: 200px; object-fit: cover; display: block; }
-  
-  /* Icono de Mapa flotante como el prototipo */
-  .map-badge {
-    position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9);
-    color: var(--gray-900); width: 36px; height: 36px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); backdrop-filter: blur(4px);
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(44,44,42,0.08); }
+  .card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .card-body { padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; }
+  .card-tag {
+    background: var(--green-50); color: var(--green-600); border-radius: 20px;
+    padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-left: 8px;
   }
-
-  .card-body { padding: 1.25rem; }
-  .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-  .card-title { font-family: 'Fraunces', serif; font-size: 18px; margin: 0; color: var(--gray-900); line-height: 1.3; }
-  
-  /* Sistema de Estrellas del reporte */
-  .rating-stars { color: #FBBF24; font-size: 12px; margin-bottom: 8px; display: flex; gap: 2px; }
-  
-  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-  .card-tag { background: var(--gray-50); color: var(--gray-600); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
-  .card-price { font-size: 13px; color: var(--gray-400); margin: 0; }
-  .card-price strong { color: var(--green-600); font-size: 16px; font-family: 'Fraunces', serif; }
-
-  .btn-view {
-    display: block; width: 100%; text-align: center; border: 1px solid var(--green-100);
-    background: var(--green-50); color: var(--green-600); padding: 10px; margin-top: 14px;
-    border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-decoration: none;
-    transition: all 0.2s;
+  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 16px; }
+  .card-cost strong { color: var(--gray-900); font-size: 15px; }
+  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; flex-grow: 1; }
+  .btn-card {
+    display: block; width: 100%; text-align: center; background: var(--green-600); color: #fff;
+    border: none; padding: 10px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: none; transition: background 0.2s;
   }
-  .btn-view:hover { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+  .btn-card:hover { background: var(--green-800); }
 
-  /* Vista en Escritorio */
-  @media (min-width: 768px) {
-    nav { padding: 0 2rem; }
-    .container { padding: 2.5rem 2rem; }
-    .search-wrapper { margin-bottom: 2rem; }
-    .filters-scroll { gap: 12px; margin-bottom: 2rem; }
-    .catalog-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  /* --- RESPONSIVE --- */
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { 
+    nav { padding: 0 1.2rem; }
+    .nav-brand { font-size: 18px; }
+    .nav-actions { gap: 16px; }
+    .nav-link span { display: none; } /* Oculta texto en móviles, deja icono */
+    .user-name-text { display: none; }
+    .user-trigger { padding: 0; border: none; }
+    .user-trigger i.fa-chevron-down { display: none; }
+    
+    .page-header { padding: 2rem 1.2rem 1rem; }
+    .page-header h1 { font-size: 28px; }
+    .search-container { padding: 0 1.2rem; }
+    .grid { grid-template-columns: 1fr; padding: 0 1.2rem 3rem; } 
   }
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="{% url 'recommendations' %}" class="nav-brand">Utourist</a>
-  <a href="{% url 'perfil' %}" style="text-decoration: none;">
-    <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
-  </a>
-</nav>
-
-<div class="container">
+  <a href="{% url 'landing' %}" class="nav-brand">Utourist</a>
   
-  <form method="GET" action="#" class="search-wrapper">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input type="text" name="q" class="search-input" placeholder="Buscar Destinos..." value="{{ request.GET.q|default:'' }}">
-  </form>
-
-  <div class="filters-scroll">
-    <a href="#" class="filter-pill active">Todos</a>
-    <a href="#" class="filter-pill">🌿 Naturaleza</a>
-    <a href="#" class="filter-pill">🏛️ Cultura</a>
-    <a href="#" class="filter-pill">⛰️ Aventura</a>
-    <a href="#" class="filter-pill">🏖️ Playas</a>
-  </div>
-
-  <div class="catalog-grid">
+  <div class="nav-actions">
     
-    {% for dest in destinations %}
-    <div class="card">
-      <img src="{{ dest.image }}" alt="{{ dest.name }}" class="card-img" loading="lazy">
-      <div class="map-badge"><i class="fa-solid fa-location-dot"></i></div>
-      
-      <div class="card-body">
-        <div class="card-header-row">
-          <h3 class="card-title">{{ dest.name }}</h3>
-        </div>
-        
-        <div class="rating-stars">
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-        </div>
+    <a href="{% url 'recommendations' %}" class="nav-link" title="Mis Recomendaciones">
+      <i class="fa-solid fa-star"></i>
+      <span>Recomendaciones</span>
+    </a>
 
-        <div class="card-meta">
-          <span class="card-tag">{{ dest.tag }}</span>
-          <p class="card-price">Desde <strong>Q{{ dest.cost }}</strong></p>
-        </div>
-        
-        <a href="{% url 'destino_detalle' dest.uid %}" class="btn-view">Explorar Destino</a>
+    <a href="{% url 'favoritos' %}" class="fav-link" title="Mis Favoritos">
+      <i class="fa-solid fa-heart"></i>
+    </a>
+
+    <div class="nav-user-container">
+      <div class="user-trigger" onclick="toggleMenu()">
+        <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+        <span class="user-name-text">Hola, {{ user_name }}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
+      </div>
+
+      <div class="dropdown-menu" id="userMenu">
+        <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+        <a href="{% url 'recommendations' %}" class="dropdown-item"><i class="fa-solid fa-star"></i> Mis Recomendaciones</a>
+        <a href="{% url 'favoritos' %}" class="dropdown-item"><i class="fa-solid fa-heart"></i> Mis Favoritos</a>
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'logout' %}" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
       </div>
     </div>
-    {% empty %}
-    <p style="color: var(--gray-400); text-align: center; grid-column: 1 / -1; padding: 3rem 0;">
-      No se encontraron destinos que coincidan con tu búsqueda.
-    </p>
-    {% endfor %}
-
   </div>
+</nav>
+
+<script>
+  function toggleMenu() { document.getElementById('userMenu').classList.toggle('active'); }
+  window.onclick = function(event) {
+    if (!event.target.closest('.nav-user-container')) {
+      const menu = document.getElementById('userMenu');
+      if (menu && menu.classList.contains('active')) menu.classList.remove('active');
+    }
+  }
+</script>
+
+<div class="page-header">
+  <h1>Explorar Destinos</h1>
+  <p>Descubre todos los lugares increíbles que tenemos para ti.</p>
+</div>
+
+<div class="search-container">
+  
+  <form method="GET" action="{% url 'explorar' %}">
+    
+    <div class="filters-bar">
+      <a href="{% url 'explorar' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="filter-btn {% if not categoria_actual %}active{% endif %}">
+        Todos
+      </a>
+      <a href="{% url 'explorar' %}?categoria=Naturaleza{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Naturaleza' %}active{% endif %}">
+        🌿 Naturaleza
+      </a>
+      <a href="{% url 'explorar' %}?categoria=Cultura{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Cultura' %}active{% endif %}">
+        🏛️ Cultura
+      </a>
+      <a href="{% url 'explorar' %}?categoria=Aventura{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Aventura' %}active{% endif %}">
+        ⛰️ Aventura
+      </a>
+      <a href="{% url 'explorar' %}?categoria=Playa{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Playa' %}active{% endif %}">
+        ⛱️ Playas
+      </a>
+    </div>
+
+    <div class="search-box">
+      {% if categoria_actual %}
+        <input type="hidden" name="categoria" value="{{ categoria_actual }}">
+      {% endif %}
+      
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" name="q" placeholder="Buscar por nombre..." value="{{ request.GET.q }}">
+      <button type="submit">Buscar</button>
+    </div>
+
+  </form>
+</div>
+
+<div class="grid">
+  {% for dest in destinations %}
+  <div class="card">
+    <img class="card-img" src="{{ dest.image }}" alt="{{ dest.name }}" loading="lazy">
+    <div class="card-body">
+      <div class="card-top">
+        <h2 class="card-name">{{ dest.name }}</h2>
+        <span class="card-tag">{{ dest.tag }}</span>
+      </div>
+      <p class="card-cost">Desde <strong>Q{{ dest.cost }}</strong> / fin de semana</p>
+      <p class="card-reason">Descubre lo que {{ dest.name }} tiene para ofrecerte.</p>
+      <a href="{% url 'destino_detalle' dest.uid %}" class="btn-card">Ver detalles →</a>
+    </div>
+  </div>
+  {% empty %}
+  <p style="color: var(--gray-400); grid-column: 1/-1; text-align:center; padding: 4rem 0;">
+    No encontramos ningún destino que coincida con tu búsqueda.
+  </p>
+  {% endfor %}
 </div>
 
 </body>
