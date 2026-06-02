@@ -231,3 +231,84 @@ def mis_viajes_view(request):
         'user_name': request.user.first_name or request.user.username,
         'visited': visited
     })
+
+@login_required(login_url='login')
+def destino_detalle_view(request, uid):
+    destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
+    
+    if not destino:
+        messages.error(request, 'El destino que buscas no se encuentra disponible.')
+        return redirect('recommendations')
+        
+    return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
+
+@login_required(login_url='login')
+def favoritos_view(request):
+    favoritos = sorted(MOCK_DESTINATIONS[:4], key=lambda x: x['score'], reverse=True)
+    
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'favoritos': favoritos
+    }
+    return render(request, 'recomendations/favoritos.html', context)
+
+@login_required(login_url='login')
+def guardar_favorito_view(request, uid):
+    if request.method == 'POST':
+        try:
+            # Llama a Neo4j para crear la relación
+            neo4j.add_favorite(request.user.id, uid)
+            messages.success(request, '¡Destino guardado en tus favoritos!')
+        except Exception as e:
+            messages.error(request, 'Hubo un error al guardar el destino.')
+    
+    # Después de guardar, te devuelve a la página del destino
+    return redirect('destino_detalle', uid=uid)
+
+@login_required(login_url='login')
+def favoritos_view(request):
+    try:
+        # Obtenemos los favoritos reales desde Neo4j
+        raw_favs = neo4j.get_favorites(request.user.id)
+        favoritos = []
+        
+        for row in raw_favs:
+            # Buscamos la imagen del destino (temporalmente usamos el MOCK para la foto)
+            imagen = "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=600&auto=format&fit=crop"
+            for md in MOCK_DESTINATIONS:
+                if md['name'] == row[1]:
+                    imagen = md['image']
+                    break
+            
+            favoritos.append({
+                'uid': row[0],
+                'name': row[1],
+                'cost': int(row[2]),
+                'tag': row[3][0].capitalize() if row[3] else "Destino",
+                'score': int(row[4] * 100),
+                'image': imagen
+            })
+            
+        sort_by = request.GET.get('sort', 'match') # 'match' es el valor por defecto
+        
+        if sort_by == 'price':
+            # Ordenar por costo (de menor a mayor)
+            favoritos = sorted(favoritos, key=lambda x: x['cost'])
+        elif sort_by == 'recent':
+            # Invertimos la lista para simular los agregados más recientemente
+            favoritos.reverse()
+        else:
+            # Ordenar por Match (score) de mayor a menor
+            favoritos = sorted(favoritos, key=lambda x: x['score'], reverse=True)
+            
+    except Exception as e:
+        print(f"Error cargando favoritos: {e}")
+        favoritos = []
+        sort_by = 'match'
+
+    context = {
+        'user_name': request.user.first_name or request.user.email,
+        'favoritos': favoritos,
+        'current_sort': sort_by  # Mandamos el estado actual para que el menú visualice la opción correcta
+    }
+    return render(request, 'recomendations/favoritos.html', context)

@@ -14,6 +14,9 @@ urlpatterns = [
     path('explorar/', views.explorar_view, name='explorar'),
     path('mis-viajes/', views.mis_viajes_view, name='mis_viajes'),
     path('recuperar-contrasena/', views.recuperar_view, name='recuperar_contrasena'),
+    path('destino/<str:uid>/', views.destino_detalle_view, name='destino_detalle'),
+    path('destino/<str:uid>/guardar/', views.guardar_favorito_view, name='guardar_favorito'),
+    path('favoritos/', views.favoritos_view, name='favoritos'),
 
     # REST API Endpoints
     path('api/recommendations/', api_views.get_recommendations_api, name='api_recommendations'),

@@ -160,3 +160,24 @@ def get_visited_places(django_user_id):
             'date': row[4]
         })
     return visited
+
+def add_favorite(django_user_id: int, place_uid: str):
+    db.cypher_query(
+        """
+        MATCH (s:Student {django_user_id: $uid})
+        MATCH (p:Place {uid: $p_uid})
+        MERGE (s)-[:FAVORITED]->(p)
+        """,
+        {"uid": django_user_id, "p_uid": place_uid}
+    )
+
+def get_favorites(django_user_id: int):
+    rows, _ = db.cypher_query(
+        """
+        MATCH (s:Student {django_user_id: $uid})-[:FAVORITED]->(p:Place)
+        OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
+        RETURN p.uid, p.name, coalesce(p.cost, 0), collect(DISTINCT c.name), coalesce(p.popularity, 0)
+        """,
+        {"uid": django_user_id}
+    )
+    return rows

@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Utourist — Tus Recomendaciones</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Se agrega FontAwesome para que los íconos funcionen -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root {
     --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
@@ -132,19 +134,29 @@
 <nav>
   <a href="{% url 'landing' %}" class="nav-brand">Utourist</a>
   
-  <div class="nav-user-container">
-    <div class="user-trigger" onclick="toggleMenu()">
-      <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
-      <span class="user-name-text">Hola, {{ user_name }}</span>
-      <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
-    </div>
+  <!-- Contenedor flex para alinear el corazón y el perfil -->
+  <div style="display: flex; align-items: center; gap: 20px;">
+    
+    <!-- Botón directo de Favoritos -->
+    <a href="{% url 'favoritos' %}" style="color: var(--green-600); font-size: 22px; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Mis Favoritos">
+      <i class="fa-solid fa-heart"></i>
+    </a>
 
-    <div class="dropdown-menu" id="userMenu">
-      <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-      <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
-      <a href="#" class="dropdown-item"><i class="fa-solid fa-bell"></i> Notificaciones</a>
-      <div class="dropdown-divider"></div>
-      <a href="{% url 'logout' %}" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+    <div class="nav-user-container">
+      <div class="user-trigger" onclick="toggleMenu()">
+        <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+        <span class="user-name-text">Hola, {{ user_name }}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
+      </div>
+
+      <div class="dropdown-menu" id="userMenu">
+        <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+        <a href="{% url 'favoritos' %}" class="dropdown-item"><i class="fa-solid fa-heart"></i> Mis Favoritos</a>
+        <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
+        <a href="#" class="dropdown-item"><i class="fa-solid fa-bell"></i> Notificaciones</a>
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'logout' %}" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+      </div>
     </div>
   </div>
 </nav>
@@ -161,7 +173,7 @@
   window.onclick = function(event) {
     if (!event.target.closest('.nav-user-container')) {
       const menu = document.getElementById('userMenu');
-      if (menu.classList.contains('active')) menu.classList.remove('active');
+      if (menu && menu.classList.contains('active')) menu.classList.remove('active');
     }
   }
 </script>

@@ -62,6 +62,10 @@
   .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); }
   .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
 
+  /* Estilos específicos para el formulario del botón de favoritos */
+  .fav-form { display: flex; width: 100%; margin: 0; }
+  .fav-form button { font-family: inherit; cursor: pointer; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
+
   /* Info adicional en formato vertical por defecto */
   .details-section { padding: 2rem 1.5rem; display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
   
@@ -88,6 +92,8 @@
     /* Botones en horizontal para pantallas grandes */
     .actions { flex-direction: row; gap: 15px; }
     .btn-primary, .btn-secondary { width: auto; padding: 14px 28px; }
+    .fav-form { width: auto; }
+    .fav-form button { width: auto; }
     
     /* Grid de dos columnas en escritorio */
     .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; grid-template-columns: 2fr 1fr; gap: 50px; }
@@ -121,7 +127,13 @@
     
     <div class="actions">
       <a href="#" class="btn-primary"><i class="fa-solid fa-map-location-dot"></i> Ver en Mapa</a>
-      <a href="#" class="btn-secondary"><i class="fa-solid fa-heart"></i> Guardar Destino</a>
+      
+      <form action="{% url 'guardar_favorito' destino.uid %}" method="POST" class="fav-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary">
+          <i class="fa-solid fa-heart"></i> Guardar Destino
+        </button>
+      </form>
     </div>
   </div>
 </div>
