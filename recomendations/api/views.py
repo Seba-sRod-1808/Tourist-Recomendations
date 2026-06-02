@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 from recomendations.queries import queries as neo4j
+from recomendations.services.recomendation_service import RecommendationService
 
 MOCK_DESTINATIONS = [
     {
@@ -23,7 +24,7 @@ MOCK_DESTINATIONS = [
         'category': 'cultura historia',
         'tag': 'Colonial',
         'match_reason': '8 estudiantes de Ingeniería con presupuesto similar lo visitaron este mes.',
-        'image': 'https://images.unsplash.com/photo-1526487046039-335a122851ee?q=80&w=600&auto=format&fit=crop',
+        'image': 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=1000',
     },
     {
         'uid': '2',
@@ -33,47 +34,7 @@ MOCK_DESTINATIONS = [
         'category': 'naturaleza aventura',
         'tag': 'Naturaleza',
         'match_reason': 'Encaja con tu preferencia por naturaleza. Ideal para fin de semana.',
-        'image': 'https://images.unsplash.com/photo-1582424075549-b5cfccda7950?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-        'uid': '3',
-        'name': 'Semuc Champey',
-        'cost': 350,
-        'score': 87,
-        'category': 'naturaleza aventura',
-        'tag': 'Aventura',
-        'match_reason': 'Destino popular entre estudiantes universitarios en vacaciones.',
-        'image': 'https://images.unsplash.com/photo-1598284687989-130ab63f73ce?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-        'uid': '4',
-        'name': 'Tikal, Petén',
-        'cost': 600,
-        'score': 82,
-        'category': 'historia cultura naturaleza',
-        'tag': 'Historia',
-        'match_reason': 'Coincide con intereses en historia maya.',
-        'image': 'https://images.unsplash.com/photo-1512556798208-148886470870?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-        'uid': '5',
-        'name': 'Río Dulce',
-        'cost': 300,
-        'score': 79,
-        'category': 'aventura naturaleza playa',
-        'tag': 'Aventura',
-        'match_reason': 'El más económico. Popular entre estudiantes con tiempo limitado.',
-        'image': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-        'uid': '6',
-        'name': 'Monterrico',
-        'cost': 650,
-        'score': 75,
-        'category': 'playa naturaleza',
-        'tag': 'Playa',
-        'match_reason': 'Estudiantes que visitaron Atitlán también lo califican altamente.',
-        'image': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop',
+        'image': 'https://images.unsplash.com/photo-4uhaeralB_M?q=80&w=1000',
     },
 ]
 
@@ -125,7 +86,7 @@ def registro_view(request):
 def recuperar_view(request):
     if request.method == 'POST':
         messages.success(request, 'Si ese correo está registrado, recibirás las instrucciones pronto.')
-        return redirect('recuperar_contrasena')
+        return redirect('password_reset')
     return render(request, 'recomendations/recuperar.html')
 
 def logout_view(request):
@@ -169,15 +130,7 @@ def mostrar_recomendaciones(request):
         recommendations = None
 
     if recommendations is None:
-        if categorias:
-            scored = []
-            for dest in MOCK_DESTINATIONS:
-                dest_cats = dest['category'].split()
-                bonus = sum(3 for c in categorias if c in dest_cats)
-                scored.append({**dest, 'score': min(dest['score'] + bonus, 99)})
-            recommendations = sorted(scored, key=lambda x: x['score'], reverse=True)
-        else:
-            recommendations = sorted(MOCK_DESTINATIONS, key=lambda x: x['score'], reverse=True)
+        recommendations = sorted(MOCK_DESTINATIONS, key=lambda x: x.get('score', 0), reverse=True)
 
     context = {
         'user_name': request.user.first_name or request.user.email,
@@ -199,29 +152,47 @@ def perfil_view(request):
 
 @login_required(login_url='login')
 def destino_detalle_view(request, uid):
-    print(f"\n--- DEBUG: Clic en botón. Buscando UID: {uid} ---")
     destino = None
-    
+    es_favorito = False
     try:
         destino = neo4j.get_place_details_by_uid(str(uid))
-        print(f"DEBUG: ¿Encontrado en Neo4j? -> {'SÍ' if destino else 'NO'}")
-        
-        if destino and 'popularity' in destino:
-            destino['score'] = int((destino['popularity'] or 0.5) * 100)
+        if destino:
+            if 'popularity' in destino:
+                destino['score'] = int((destino['popularity'] or 0.5) * 100)
+            
+            # Verificar si ya es favorito
+            favoritos = neo4j.get_favorites(request.user.id)
+            es_favorito = any(str(row[0]) == str(uid) for row in favoritos)
+
     except Exception as e:
-        print(f"DEBUG Error Crítico en Neo4j: {e}")
-
+        print(f"Error al buscar detalle en Neo4j: {e}")
+        
     if not destino:
-        print("DEBUG: Buscando en MOCK_DESTINATIONS como respaldo...")
         destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
-        print(f"DEBUG: ¿Encontrado en MOCK? -> {'SÍ' if destino else 'NO'}")
-
+    
     if not destino:
-        print("DEBUG: Destino fantasma. No existe en BD ni en MOCK. Redirigiendo...")
         return redirect('recommendations') 
         
-    print("DEBUG: ¡Éxito! Renderizando HTML.")
-    return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
+    return render(request, 'recomendations/destino_detalle.html', {
+        'destino': destino,
+        'es_favorito': es_favorito
+    })
+
+@login_required(login_url='login')
+def eliminar_favorito_view(request, uid):
+    if request.method == 'POST':
+        try:
+            neo4j.remove_favorite(request.user.id, uid)
+            messages.success(request, '¡Destino eliminado de tus favoritos!')
+        except Exception as e:
+            print(f"Error al eliminar favorito: {e}")
+            messages.error(request, 'No se pudo eliminar el favorito.')
+    
+    # Redirigir según de donde venga
+    next_url = request.GET.get('next', 'favoritos')
+    if next_url == 'detalle':
+        return redirect('destino_detalle', uid=uid)
+    return redirect('favoritos')
 
 @login_required(login_url='login')
 def explorar_view(request):
@@ -232,10 +203,12 @@ def explorar_view(request):
     except Exception as e:
         print(f"Neo4j get_all_places error: {e}")
         destinations = MOCK_DESTINATIONS
+
     if query:
         destinations = [d for d in destinations if query in d['name'].lower()]
     if categoria:
         destinations = [d for d in destinations if categoria.lower() in d.get('category', '').lower() or categoria.lower() in d.get('tag', '').lower()]
+    
     context = {
         'user_name': request.user.first_name or request.user.email,
         'destinations': destinations,
@@ -252,78 +225,41 @@ def mis_viajes_view(request):
     })
 
 @login_required(login_url='login')
-def destino_detalle_view(request, uid):
-    destino = None
-    try:
-        destino = neo4j.get_place_details_by_uid(str(uid))
-        if destino and 'popularity' in destino:
-            destino['score'] = int((destino['popularity'] or 0.5) * 100)
-    except Exception as e:
-        print(f"Error al buscar detalle en Neo4j: {e}")
-    if not destino:
-        destino = next((d for d in MOCK_DESTINATIONS if str(d['uid']) == str(uid)), None)
-    if not destino:
-        return redirect('recommendations') 
-        
-    return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
-
-@login_required(login_url='login')
-def favoritos_view(request):
-    favoritos = sorted(MOCK_DESTINATIONS[:4], key=lambda x: x['score'], reverse=True)
-    
-    context = {
-        'user_name': request.user.first_name or request.user.email,
-        'favoritos': favoritos
-    }
-    return render(request, 'recomendations/favoritos.html', context)
-
-@login_required(login_url='login')
 def guardar_favorito_view(request, uid):
     if request.method == 'POST':
         try:
-            # Llama a Neo4j para crear la relación
             neo4j.add_favorite(request.user.id, uid)
             messages.success(request, '¡Destino guardado en tus favoritos!')
         except Exception as e:
+            print(f"Error al guardar favorito: {e}")
             messages.error(request, 'Hubo un error al guardar el destino.')
     
-    # Después de guardar, te devuelve a la página del destino
     return redirect('destino_detalle', uid=uid)
 
 @login_required(login_url='login')
 def favoritos_view(request):
     try:
-        # Obtenemos los favoritos reales desde Neo4j
         raw_favs = neo4j.get_favorites(request.user.id)
         favoritos = []
         
+        service = RecommendationService()
         for row in raw_favs:
-            # Buscamos la imagen del destino (temporalmente usamos el MOCK para la foto)
-            imagen = "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=600&auto=format&fit=crop"
-            for md in MOCK_DESTINATIONS:
-                if md['name'] == row[1]:
-                    imagen = md['image']
-                    break
-            
+            categorias_lista = row[3] if row[3] else []
             favoritos.append({
                 'uid': row[0],
                 'name': row[1],
                 'cost': int(row[2]),
-                'tag': row[3][0].capitalize() if row[3] else "Destino",
-                'score': int(row[4] * 100),
-                'image': imagen
+                'tag': categorias_lista[0].capitalize() if categorias_lista else "Destino",
+                'score': int((row[4] or 0) * 100),
+                'image': service._get_image(row[1])
             })
             
-        sort_by = request.GET.get('sort', 'match') # 'match' es el valor por defecto
-        
+        sort_by = request.GET.get('sort', 'match')
         if sort_by == 'price':
-            # Ordenar por costo (de menor a mayor)
             favoritos = sorted(favoritos, key=lambda x: x['cost'])
         elif sort_by == 'recent':
-            # Invertimos la lista para simular los agregados más recientemente
             favoritos.reverse()
         else:
-            # Ordenar por Match (score) de mayor a menor
             favoritos = sorted(favoritos, key=lambda x: x['score'], reverse=True)
             
     except Exception as e:
@@ -334,6 +270,6 @@ def favoritos_view(request):
     context = {
         'user_name': request.user.first_name or request.user.email,
         'favoritos': favoritos,
-        'current_sort': sort_by  # Mandamos el estado actual para que el menú visualice la opción correcta
+        'current_sort': sort_by
     }
     return render(request, 'recomendations/favoritos.html', context)

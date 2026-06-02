@@ -80,9 +80,12 @@
       <img src="{{ dest.image }}" alt="{{ dest.name }}" class="card-img">
       <div class="rank-badge">Top #{{ forloop.counter }}</div>
       
-      <button class="btn-remove-fav" onclick="alert('Funcionalidad de eliminar pendiente.')">
-        <i class="fa-solid fa-heart-crack"></i>
-      </button>
+      <form action="{% url 'eliminar_favorito' dest.uid %}" method="POST" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-remove-fav" title="Eliminar de favoritos">
+          <i class="fa-solid fa-heart-crack"></i>
+        </button>
+      </form>
       
       <div class="card-body">
         <h3 class="card-title">{{ dest.name }}</h3>

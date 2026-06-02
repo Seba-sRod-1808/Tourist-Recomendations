@@ -128,21 +128,38 @@
     <div class="actions">
       <a href="#" class="btn-primary"><i class="fa-solid fa-map-location-dot"></i> Ver en Mapa</a>
       
-      <form action="{% url 'guardar_favorito' destino.uid %}" method="POST" class="fav-form">
-        {% csrf_token %}
-        <button type="submit" class="btn-secondary">
-          <i class="fa-solid fa-heart"></i> Guardar Destino
-        </button>
-      </form>
+      {% if es_favorito %}
+        <form action="{% url 'eliminar_favorito' destino.uid %}?next=detalle" method="POST" class="fav-form" onsubmit="showToast('Eliminado de favoritos')">
+          {% csrf_token %}
+          <button type="submit" class="btn-secondary" style="border-color: #ef4444; color: #ef4444;">
+            <i class="fa-solid fa-heart heart-pop"></i> Quitar de Favoritos
+          </button>
+        </form>
+      {% else %}
+        <form action="{% url 'guardar_favorito' destino.uid %}" method="POST" class="fav-form" onsubmit="showToast('¡Guardado en favoritos!')">
+          {% csrf_token %}
+          <button type="submit" class="btn-secondary">
+            <i class="fa-regular fa-heart"></i> Guardar Destino
+          </button>
+        </form>
+      {% endif %}
     </div>
   </div>
 </div>
+
+<script>
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.innerText = message;
+    toast.style.display = 'block';
+  }
+</script>
 
 <div class="details-section">
   <div class="details-content">
     <h2>Por qué te lo recomendamos</h2>
     <p>
-      Nuestro algoritmo de grafos en Neo4j cruzó tus preferencias de presupuesto y categorías con el historial de más de cientos de estudiantes. Al evaluar variables colectivas en tu entorno, este lugar destacó por su infraestructura ideal para grupos universitarios y escapadas de fin de semana.
+      Nuestro algoritmo cruzó tus preferencias de presupuesto y categorías con el historial de más de cientos de estudiantes. Al evaluar variables colectivas en tu entorno, este lugar destacó por su infraestructura ideal para grupos universitarios y escapadas de fin de semana.
     </p>
   </div>
   

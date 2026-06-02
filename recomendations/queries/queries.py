@@ -154,11 +154,44 @@ def get_visited_places(django_user_id):
     return visited
 
 def add_favorite(django_user_id: int, place_uid: str):
+    # Aseguramos que el estudiante exista y vinculamos al lugar si existe
+    query = """
+    MERGE (s:Student {django_user_id: $uid})
+    WITH s
+    MATCH (p:Place {uid: $p_uid})
+    MERGE (s)-[:FAVORITED]->(p)
+    RETURN p.name
+    """
+    results, _ = db.cypher_query(query, {"uid": django_user_id, "p_uid": place_uid})
+    
+    if not results:
+        # Si no hubo resultados, es porque el lugar no existe en Neo4j (posiblemente un MOCK)
+        # Intentamos buscarlo por nombre si el UID es de un solo dígito (MOCK)
+        mock_map = {
+            '1': 'Antigua Guatemala',
+            '2': 'Lago Atitlan',
+            '3': 'Semuc Champey',
+            '4': 'Tikal, Peten',
+            '5': 'Rio Dulce',
+            '6': 'Monterrico'
+        }
+        name = mock_map.get(place_uid)
+        if name:
+            db.cypher_query(
+                """
+                MERGE (s:Student {django_user_id: $uid})
+                WITH s
+                MATCH (p:Place {name: $name})
+                MERGE (s)-[:FAVORITED]->(p)
+                """,
+                {"uid": django_user_id, "name": name}
+            )
+
+def remove_favorite(django_user_id: int, place_uid: str):
     db.cypher_query(
         """
-        MATCH (s:Student {django_user_id: $uid})
-        MATCH (p:Place {uid: $p_uid})
-        MERGE (s)-[:FAVORITED]->(p)
+        MATCH (s:Student {django_user_id: $uid})-[r:FAVORITED]->(p:Place {uid: $p_uid})
+        DELETE r
         """,
         {"uid": django_user_id, "p_uid": place_uid}
     )
