@@ -1,10 +1,14 @@
 """
-Interfaz de scoring para el algoritmo de recomendación.
+PROCESO: Funciones de Puntuación (Scoring)
+DESCRIPCIÓN: Implementa la lógica matemática para evaluar cada destino candidato.
+Calcula puntuaciones individuales basadas en contenido (categorías),
+colaboración (comportamiento de pares), demografía (carrera universitaria)
+y proximidad geográfica, combinándolas en una puntuación final normalizada.
 """
 
+import math
 
 def score_place(student_profile: dict, place: dict) -> dict:
-
     direct_matches = len(place['categories'].intersection(student_profile['liked_categories']))
     visited_matches = len(place['categories'].intersection(student_profile['visited_categories']))
 
@@ -14,12 +18,8 @@ def score_place(student_profile: dict, place: dict) -> dict:
     content_score = min(content_score, 1.0)
 
     collaborative_score = min(place['similar_students_visits'] / 5.0, 1.0)
-
     demographic_score = 1.0 if place['career_affinity'] else 0.0
-
-
     popularity_bonus = place['popularity']
-
     geo_bonus = score_geographic_proximity(place)
 
     WEIGHT_CONTENT = 0.40
@@ -49,10 +49,19 @@ def score_place(student_profile: dict, place: dict) -> dict:
         }
     }
 
-
 def score_geographic_proximity(place: dict) -> float:
-    return 0.5
+    BASE_LAT = 14.6349
+    BASE_LNG = -90.5069
+    
+    place_lat = place.get('lat')
+    place_lng = place.get('lng')
+    
+    if place_lat is None or place_lng is None:
+        return 0.5
 
+    distance = math.sqrt((place_lat - BASE_LAT)**2 + (place_lng - BASE_LNG)**2)
+    score = max(0, 1.0 - (distance / 5.0))
+    return round(score, 2)
 
 def calculate_jaccard_similarity(set_a: set, set_b: set) -> float:
     if not set_a or not set_b:

@@ -1,24 +1,19 @@
+"""
+PROCESO: Capa de Consultas y Mutaciones
+DESCRIPCIÓN: Implementa las consultas Cypher para interactuar con la base de datos de grafos.
+Incluye funciones para gestionar el perfil del estudiante, registrar visitas,
+y recuperar información detallada de destinos y recomendaciones.
+"""
 
 from neomodel import db
 from recomendations.services.recomendation_service import RecommendationService
 
 _service = RecommendationService()
 
-
-# ---------------------------------------------------------------------------
-# Recomendaciones
-# ---------------------------------------------------------------------------
-
 def get_recommendations(django_user_id=None, limit=6):
-
     if django_user_id is None:
         return _service._fallback_popular(limit)
     return _service.recommend(student_uid=django_user_id, limit=limit)
-
-
-# ---------------------------------------------------------------------------
-# Mutaciones de perfil
-# ---------------------------------------------------------------------------
 
 def create_student(django_user_id: int, name: str) -> None:
     db.cypher_query(
@@ -29,7 +24,6 @@ def create_student(django_user_id: int, name: str) -> None:
         {"uid": django_user_id, "name": name},
     )
 
-
 def set_student_preferences(
     django_user_id: int,
     carrera: str,
@@ -37,14 +31,22 @@ def set_student_preferences(
     categorias: list,
     presupuesto: str,
 ) -> None:
+    budget_map = {
+        "Menos de Q200": 200.0,
+        "Q200–Q500": 500.0,
+        "Q500–Q1000": 1000.0,
+        "Más de Q1000": 2000.0
+    }
+    budget_val = budget_map.get(presupuesto, 500.0)
+
     db.cypher_query(
         """
         MATCH (s:Student {django_user_id: $uid})
         MERGE (c:Career {name: $carrera})
         MERGE (s)-[:STUDIES]->(c)
-        SET s.universidad = $universidad, s.presupuesto = $presupuesto
+        SET s.universidad = $universidad, s.presupuesto = $presupuesto, s.budget = $budget
         """,
-        {"uid": django_user_id, "carrera": carrera, "universidad": universidad, "presupuesto": presupuesto},
+        {"uid": django_user_id, "carrera": carrera, "universidad": universidad, "presupuesto": presupuesto, "budget": budget_val},
     )
 
     db.cypher_query(
@@ -61,13 +63,7 @@ def set_student_preferences(
             {"uid": django_user_id, "cat": cat},
         )
 
-
-# ---------------------------------------------------------------------------
-# Reseñas
-# ---------------------------------------------------------------------------
-
 def add_review(django_user_id: int, place_uid: str, rating: float, comment: str = ""):
-
     db.cypher_query(
         """
         MATCH (s:Student {django_user_id: $uid})
@@ -84,9 +80,64 @@ def add_review(django_user_id: int, place_uid: str, rating: float, comment: str 
         {"uid": django_user_id, "p_uid": place_uid, "rating": rating, "comment": comment},
     )
 
-# ---------------------------------------------------------------------------
-# Mis_viajes
-# ---------------------------------------------------------------------------
+def get_place_details_by_uid(place_uid: str):
+    query = """
+    MATCH (p:Place {uid: $uid})
+    OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
+    RETURN p.uid AS uid, 
+           p.name AS name, 
+           p.cost AS cost, 
+           p.popularity AS popularity,
+           p.lat AS lat,
+           p.lng AS lng,
+           collect(c.name) AS categories
+    """
+    results, meta = db.cypher_query(query, {'uid': place_uid})
+    if not results:
+        return None
+    
+    row = results[0]
+    return {
+        'uid': row[0],
+        'name': row[1],
+        'cost': row[2],
+        'popularity': row[3],
+        'lat': row[4],
+        'lng': row[5],
+        'categories': row[6],
+        'category': ' '.join(row[6]),
+        'image': RecommendationService()._get_image(row[1]) 
+    }
+
+def get_all_places():
+    query = """
+    MATCH (p:Place)
+    OPTIONAL MATCH (p)-[:HAS_CATEGORY]->(c:Category)
+    RETURN p.uid AS uid, 
+           p.name AS name, 
+           p.cost AS cost, 
+           p.popularity AS popularity,
+           p.lat AS lat,
+           p.lng AS lng,
+           collect(c.name) AS categories
+    """
+    results, meta = db.cypher_query(query)
+    
+    places = []
+    for row in results:
+        places.append({
+            'uid': row[0],
+            'name': row[1],
+            'cost': row[2],
+            'score': int((row[3] or 0) * 100),
+            'lat': row[4],
+            'lng': row[5],
+            'categories': row[6],
+            'category': ' '.join(row[6]),
+            'tag': row[6][0].capitalize() if row[6] else "Destino",
+            'image': RecommendationService()._get_image(row[1])
+        })
+    return places
 
 def get_visited_places(django_user_id):
     query = """

@@ -4,14 +4,14 @@ from neomodel import install_all_labels, db
 
 
 PLACES = [
-    {"name": "Antigua Guatemala", "cost": 550.0, "popularity": 0.94, "cats": ["historia", "cultura", "colonial"]},
-    {"name": "Lago Atitlan",      "cost": 400.0, "popularity": 0.91, "cats": ["naturaleza", "aventura"]},
-    {"name": "Semuc Champey",     "cost": 350.0, "popularity": 0.87, "cats": ["naturaleza", "aventura"]},
-    {"name": "Tikal, Peten",      "cost": 600.0, "popularity": 0.82, "cats": ["historia", "cultura", "naturaleza"]},
-    {"name": "Rio Dulce",         "cost": 300.0, "popularity": 0.79, "cats": ["aventura", "naturaleza", "playa"]},
-    {"name": "Monterrico",        "cost": 650.0, "popularity": 0.75, "cats": ["playa", "naturaleza"]},
-    {"name": "Chichicastenango",  "cost": 250.0, "popularity": 0.72, "cats": ["cultura", "historia"]},
-    {"name": "Livingston",        "cost": 350.0, "popularity": 0.68, "cats": ["playa", "cultura", "aventura"]},
+    {"name": "Antigua Guatemala", "cost": 550.0, "popularity": 0.94, "cats": ["historia", "cultura", "colonial"], "lat": 14.5573, "lng": -90.7332},
+    {"name": "Lago Atitlan",      "cost": 400.0, "popularity": 0.91, "cats": ["naturaleza", "aventura"], "lat": 14.6907, "lng": -91.2025},
+    {"name": "Semuc Champey",     "cost": 350.0, "popularity": 0.87, "cats": ["naturaleza", "aventura"], "lat": 15.5539, "lng": -89.9572},
+    {"name": "Tikal, Peten",      "cost": 600.0, "popularity": 0.82, "cats": ["historia", "cultura", "naturaleza"], "lat": 17.2223, "lng": -89.6237},
+    {"name": "Rio Dulce",         "cost": 300.0, "popularity": 0.79, "cats": ["aventura", "naturaleza", "playa"], "lat": 15.6558, "lng": -88.9416},
+    {"name": "Monterrico",        "cost": 650.0, "popularity": 0.75, "cats": ["playa", "naturaleza"], "lat": 13.9189, "lng": -90.4811},
+    {"name": "Chichicastenango",  "cost": 250.0, "popularity": 0.72, "cats": ["cultura", "historia"], "lat": 14.9427, "lng": -91.1114},
+    {"name": "Livingston",        "cost": 350.0, "popularity": 0.68, "cats": ["playa", "cultura", "aventura"], "lat": 15.8278, "lng": -88.7500},
 ]
 
 CAREER_PREFERENCES = {
@@ -65,10 +65,10 @@ class Command(BaseCommand):
             db.cypher_query(
                 """
                 MERGE (pl:Place {name: $name})
-                ON CREATE SET pl.uid = $uid, pl.cost = $cost, pl.popularity = $popularity
-                ON MATCH SET pl.cost = $cost, pl.popularity = $popularity
+                ON CREATE SET pl.uid = $uid, pl.cost = $cost, pl.popularity = $popularity, pl.lat = $lat, pl.lng = $lng
+                ON MATCH SET pl.cost = $cost, pl.popularity = $popularity, pl.lat = $lat, pl.lng = $lng
                 """,
-                {"name": p["name"], "uid": uid, "cost": p["cost"], "popularity": p["popularity"]},
+                {"name": p["name"], "uid": uid, "cost": p["cost"], "popularity": p["popularity"], "lat": p["lat"], "lng": p["lng"]},
             )
             for cat in p["cats"]:
                 db.cypher_query(

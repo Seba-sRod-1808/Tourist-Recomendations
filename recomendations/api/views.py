@@ -1,3 +1,11 @@
+"""
+PROCESO: Capa de Vistas
+DESCRIPCIÓN: Gestiona las peticiones HTTP y la lógica de presentación.
+Incluye el manejo de autenticación de usuarios, registro de preferencias,
+visualización de recomendaciones personalizadas, detalles de destinos y perfiles.
+Actúa como puente entre la lógica de negocio y los templates de Django.
+"""
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -69,12 +77,10 @@ MOCK_DESTINATIONS = [
     },
 ]
 
-
 def landing_view(request):
     if request.user.is_authenticated:
         return redirect('recommendations')
     return render(request, 'recomendations/landing.html')
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -92,7 +98,6 @@ def login_view(request):
             return redirect('recommendations')
         messages.error(request, 'Correo o contraseña incorrectos.')
     return render(request, 'recomendations/login.html')
-
 
 def registro_view(request):
     if request.user.is_authenticated:
@@ -117,18 +122,15 @@ def registro_view(request):
         return redirect('onboarding')
     return render(request, 'recomendations/registro.html')
 
-
 def recuperar_view(request):
     if request.method == 'POST':
         messages.success(request, 'Si ese correo está registrado, recibirás las instrucciones pronto.')
         return redirect('recuperar_contrasena')
-    return render(request, 'recomendations/password_reset_confirm.html')
-
+    return render(request, 'recomendations/recuperar.html')
 
 def logout_view(request):
     logout(request)
     return redirect('landing')
-
 
 @login_required(login_url='login')
 def onboarding_view(request):
@@ -153,7 +155,6 @@ def onboarding_view(request):
             print(f"Neo4j set_student_preferences error: {e}")
         return redirect('recommendations')
     return render(request, 'recomendations/onboarding.html')
-
 
 @login_required(login_url='login')
 def mostrar_recomendaciones(request):
@@ -198,29 +199,25 @@ def perfil_view(request):
 
 @login_required(login_url='login')
 def destino_detalle_view(request, uid):
-    destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
-    
+    destino = neo4j.get_place_details_by_uid(uid)
+    if not destino:
+        destino = next((d for d in MOCK_DESTINATIONS if d['uid'] == uid), None)
     if not destino:
         return redirect('recommendations') 
-        
     return render(request, 'recomendations/destino_detalle.html', {'destino': destino})
-
 
 @login_required(login_url='login')
 def explorar_view(request):
     query = request.GET.get('q', '').lower()
-    
     try:
-        destinations = None
+        destinations = neo4j.get_all_places()
         if not destinations:
             destinations = MOCK_DESTINATIONS
     except Exception as e:
         print(f"Neo4j get_all_places error: {e}")
         destinations = MOCK_DESTINATIONS
-
     if query:
         destinations = [d for d in destinations if query in d['name'].lower()]
-
     context = {
         'user_name': request.user.first_name or request.user.email,
         'destinations': destinations
@@ -229,6 +226,8 @@ def explorar_view(request):
 
 @login_required(login_url='login')
 def mis_viajes_view(request):
-    return render(request, 'recomendations/mis_viajes.html', {
-        'user_name': request.user.first_name or request.user.username
+    visited = neo4j.get_visited_places(request.user.id)
+    return render(request, 'recomendations/mis_destinos.html', {
+        'user_name': request.user.first_name or request.user.username,
+        'visited': visited
     })
