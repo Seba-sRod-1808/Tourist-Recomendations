@@ -6,7 +6,7 @@ Sistema de recomendaciones de viajes diseñado para estudiantes universitarios, 
 
 ## Guía de Configuración Local
 
-Sigue estos pasos para poner en marcha el proyecto en tu máquina:
+Segui estos pasos para poner en marcha el proyecto en tu máquina:
 
 ### 1. Requisitos Previos
 *   **Python 3.10+**
@@ -16,26 +16,26 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina:
 ### 2. Clonar y Preparar Entorno
 ```bash
 # Clonar repositorio
-git clone <url-del-repo>
+git clone 
 cd Tourist-Recomendations
 
 # Crear entorno virtual
 python -m venv venv
-source venv/Scripts/activate  # En Windows: venv\Scripts\activate
+source venv/Scripts/activate 
 
 # Instalar dependencias
 pip install -r requirements.txt
 ```
 
 ### 3. Configurar Neo4j
-Si usas Docker, puedes iniciar una instancia rápidamente:
+Si usas Docker:
 ```bash
 docker run -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest
 ```
 *Nota: Si tu contraseña de Neo4j es diferente, actualiza `NEOMODEL_NEO4J_BOLT_URL` en `config/settings.py`.*
 
 ### 4. Inicializar Bases de Datos
-Es necesario preparar tanto SQLite (usuarios) como Neo4j (grafo):
+Es necesario preparar tanto SQLite como Neo4j:
 ```bash
 # Migraciones de Django
 python manage.py migrate
