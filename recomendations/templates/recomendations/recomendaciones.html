@@ -16,7 +16,6 @@
   * { box-sizing: border-box; }
   body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; transition: background 0.3s, color 0.3s; }
 
-  /* --- NAVEGACIÓN --- */
   nav {
     background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
     border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px;
@@ -35,7 +34,6 @@
   .explore-link:hover { color: var(--green-600); }
   .explore-link i { font-size: 18px; }
 
-  /* --- MENU USUARIO --- */
   .nav-user-container { position: relative; display: inline-block; }
   .user-trigger { 
     display: flex; align-items: center; gap: 10px; cursor: pointer; 
@@ -66,7 +64,6 @@
   .dropdown-divider { height: 1px; background: #E8E5DC; margin: 6px 0; }
   .logout-btn:hover { color: #D85A30; background: #FAECE7; }
 
-  /* --- HEADER Y ETIQUETAS --- */
   .page-header { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 1.5rem; }
   .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); transition: color 0.3s; }
   .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; transition: color 0.3s; }
@@ -83,7 +80,6 @@
   }
   {% endif %}
 
-  /* --- GRID Y TARJETAS --- */
   .grid {
     max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem;
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
@@ -124,7 +120,6 @@
   }
   .btn-card:hover { background: var(--green-800); }
 
-  /* --- RESPONSIVE --- */
   @media (max-width: 900px) { 
     .grid { grid-template-columns: repeat(2, 1fr); } 
   }
@@ -144,53 +139,15 @@
     .grid { grid-template-columns: 1fr; padding: 0 1.2rem 3rem; } 
   }
 
-  /* =========================================
-     CORRECCIÓN TOTAL MODO OSCURO
-     ========================================= */
   body.dark-mode { background: #18181B; color: #F4F1EB; }
-  
-  /* Fondos oscuros */
-  body.dark-mode nav, 
-  body.dark-mode .dropdown-menu, 
-  body.dark-mode .card { 
-    background: #27272A; border-color: #3F3F46; 
-  }
-  
-  /* Textos principales blancos */
-  body.dark-mode .page-header h1, 
-  body.dark-mode .user-name-text, 
-  body.dark-mode .card-name, 
-  body.dark-mode .card-cost strong { 
-    color: #F4F1EB; 
-  }
-  
-  /* Textos secundarios gris claro */
-  body.dark-mode .explore-link, 
-  body.dark-mode .dropdown-item, 
-  body.dark-mode .page-header p, 
-  body.dark-mode .card-cost, 
-  body.dark-mode .card-reason,
-  body.dark-mode .prefs-label { 
-    color: #A1A1AA; 
-  }
-  
-  /* Efectos hover */
-  body.dark-mode .explore-link:hover, 
-  body.dark-mode .dropdown-item:hover { 
-    color: var(--green-100); background: rgba(255,255,255,0.05); 
-  }
-  body.dark-mode .user-trigger:hover { 
-    background: #3F3F46; border-color: #52525B; 
-  }
-  body.dark-mode .dropdown-divider { 
-    background: #3F3F46; 
-  }
-  body.dark-mode .score-bar-wrap { 
-    background: #3F3F46; 
-  }
-  body.dark-mode .pref-tag, body.dark-mode .card-tag { 
-    background: rgba(59,109,17,0.2); border-color: var(--green-600); color: var(--green-100); 
-  }
+  body.dark-mode nav, body.dark-mode .dropdown-menu, body.dark-mode .card { background: #27272A; border-color: #3F3F46; }
+  body.dark-mode .page-header h1, body.dark-mode .user-name-text, body.dark-mode .card-name, body.dark-mode .card-cost strong { color: #F4F1EB; }
+  body.dark-mode .explore-link, body.dark-mode .dropdown-item, body.dark-mode .page-header p, body.dark-mode .card-cost, body.dark-mode .card-reason, body.dark-mode .prefs-label { color: #A1A1AA; }
+  body.dark-mode .explore-link:hover, body.dark-mode .dropdown-item:hover { color: var(--green-100); background: rgba(255,255,255,0.05); }
+  body.dark-mode .user-trigger:hover { background: #3F3F46; border-color: #52525B; }
+  body.dark-mode .dropdown-divider { background: #3F3F46; }
+  body.dark-mode .score-bar-wrap { background: #3F3F46; }
+  body.dark-mode .pref-tag, body.dark-mode .card-tag { background: rgba(59,109,17,0.2); border-color: var(--green-600); color: var(--green-100); }
 </style>
 </head>
 <body>
@@ -205,7 +162,6 @@
       <span>Explorar</span>
     </a>
 
-    <!-- Botón de favoritos corregido -->
     <a href="{% url 'favoritos' %}" class="explore-link" title="Mis Favoritos">
       <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
       <span>Favoritos</span>
@@ -224,7 +180,6 @@
         <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
       </div>
 
-      <!-- Menú limpio -->
       <div class="dropdown-menu" id="userMenu">
         <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
         <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
@@ -249,10 +204,14 @@
 {% endif %}
 
 <script>
-  function toggleMenu() {
-    document.getElementById('userMenu').classList.toggle('active');
+  function toggleMenu() { document.getElementById('userMenu').classList.toggle('active'); }
+  window.onclick = function(event) {
+    if (!event.target.closest('.nav-user-container')) {
+      const menu = document.getElementById('userMenu');
+      if (menu && menu.classList.contains('active')) menu.classList.remove('active');
+    }
   }
-  
+
   function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     if (document.body.classList.contains('dark-mode')) {
@@ -262,17 +221,9 @@
     }
   }
 
-  // Cargar preferencia de tema oscuro
   window.onload = function() {
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('dark-mode');
-    }
-  }
-
-  window.onclick = function(event) {
-    if (!event.target.closest('.nav-user-container')) {
-      const menu = document.getElementById('userMenu');
-      if (menu && menu.classList.contains('active')) menu.classList.remove('active');
     }
   }
 </script>
@@ -310,7 +261,7 @@
         </div>
         <span class="score-num">{{ dest.score }}% match</span>
       </div>
-      <p class="card-reason">{{ dest.match_reason }}</p>
+      <p class="card-reason">{{ dest.description|default:"Un lugar increíble esperando ser explorado."|truncatechars:110 }}</p>
       <a href="{% url 'destino_detalle' dest.uid %}" class="btn-card">Ver detalles →</a>
     </div>
   </div>
@@ -322,4 +273,4 @@
 </div>
 
 </body>
-</html>
+</html> 

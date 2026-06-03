@@ -41,7 +41,7 @@
   .meta-data { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; margin-bottom: 20px; }
   .match-score { color: #4ADE80; font-weight: 700; font-size: 16px; }
   .tag { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
-  .description { font-size: 15px; line-height: 1.6; color: #D3D1C7; margin: 0 0 24px; max-width: 600px; }
+  .description { font-size: 16px; line-height: 1.6; color: #D3D1C7; margin: 0 0 24px; max-width: 700px; }
   
   .actions { display: flex; flex-direction: column; gap: 12px; }
   .btn-primary, .btn-secondary { 
@@ -49,19 +49,22 @@
     font-size: 15px; font-weight: 700; text-decoration: none; 
     display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; 
   }
-  .btn-primary { background: #fff; color: #000; border: none; cursor: pointer; }
+  .btn-primary { background: #fff; color: #000; border: none; cursor: pointer; font-family: inherit; }
+  .btn-primary:hover { background: #e5e5e5; }
   .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); cursor: pointer; }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.25); }
 
   .fav-form { display: flex; width: 100%; margin: 0; }
 
-  .details-section { padding: 2rem 1.5rem; display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
-  .details-content h2 { font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 12px; }
-  .details-content p { color: #D3D1C7; line-height: 1.6; font-size: 15px; margin: 0; }
-  
-  .sidebar-info { display: flex; flex-direction: column; gap: 20px; }
-  .info-box { background: #1A1A1A; padding: 20px; border-radius: var(--radius-md); border: 1px solid #2A2A2A; }
-  .info-box h3 { color: var(--gray-400); font-size: 11px; text-transform: uppercase; margin: 0 0 6px; letter-spacing: 1px; }
+  .details-section { padding: 2rem 1.5rem; max-width: 1000px; }
+  .sidebar-info { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 2rem; }
+  .info-box { background: #1A1A1A; padding: 20px; border-radius: var(--radius-md); border: 1px solid #2A2A2A; min-width: 250px; flex: 1; }
+  .info-box h3 { color: var(--gray-400); font-size: 11px; text-transform: uppercase; margin: 0 0 10px; letter-spacing: 1px; }
   .info-box p { font-size: 16px; margin: 0; font-weight: 500; }
+
+  .pop-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: #fff; }
+  .pop-badge i { color: #FBBF24; }
+  .pop-badge span { font-size: 14px; color: var(--gray-400); font-weight: 500; }
 
   @keyframes heartPop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
   .heart-pop { animation: heartPop 0.4s ease-out; color: #ef4444 !important; }
@@ -74,14 +77,15 @@
   }
   @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
-  /* --- CSS MÁGICO PARA MAPA VERDE --- */
-  .leaflet-tile-pane {
-    filter: sepia(100%) hue-rotate(60deg) saturate(300%) brightness(0.8) contrast(1.1);
-  }
-  .leaflet-marker-icon {
-    /* Convierte el pin azul de Leaflet a color verde */
-    filter: hue-rotate(130deg) saturate(150%); 
-  }
+  .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 6px; }
+  .star-rating input { display: none; }
+  .star-rating label { font-size: 26px; color: #444; cursor: pointer; transition: color 0.2s; }
+  .star-rating label:hover,
+  .star-rating label:hover ~ label,
+  .star-rating input:checked ~ label { color: #FBBF24; }
+
+  .leaflet-tile-pane { filter: sepia(100%) hue-rotate(60deg) saturate(300%) brightness(0.8) contrast(1.1); }
+  .leaflet-marker-icon { filter: hue-rotate(130deg) saturate(150%); }
 
   @media (min-width: 768px) {
     .btn-back { top: 30px; left: 40px; padding: 10px 20px; }
@@ -91,7 +95,7 @@
     .actions { flex-direction: row; gap: 15px; }
     .btn-primary, .btn-secondary, .fav-form { width: auto; }
     .btn-primary, .btn-secondary { padding: 14px 28px; }
-    .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; grid-template-columns: 2fr 1fr; gap: 50px; }
+    .details-section { margin: 40px auto; padding: 0 40px; }
   }
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -119,7 +123,7 @@
     </div>
     
     <p class="description">
-      {{ destino.match_reason }} Este destino encaja perfectamente con tu perfil y las tendencias de viaje de tu comunidad académica.
+      {{ destino.description|default:"Un destino increíble esperando ser explorado." }}
     </p>
     
     <div class="actions">
@@ -146,20 +150,21 @@
     </div>
 
     <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-      <h3 style="font-family: 'Fraunces', serif; margin: 0 0 15px; font-size: 20px;">¿Ya visitaste este lugar?</h3>
-      <form action="{% url 'registrar_visita' destino.uid %}" method="POST">
+      <h3 style="font-family: 'Fraunces', serif; margin: 0 0 10px; font-size: 20px;">¿Ya visitaste este lugar?</h3>
+      <p style="font-size: 14px; color: #B4B2A9; margin-bottom: 15px;">Califica tu experiencia para mejorar tus recomendaciones y las de tu facultad:</p>
+      
+      <form action="{% url 'registrar_visita' destino.uid %}" method="POST" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
         {% csrf_token %}
-        <p style="font-size: 14px; color: #B4B2A9; margin-bottom: 15px;">Califica tu experiencia para mejorar tus recomendaciones:</p>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-          <select name="rating" style="background: #222; color: #fff; border: 1px solid #444; padding: 8px 12px; border-radius: 8px; font-family: inherit;">
-            <option value="5">⭐️⭐️⭐️⭐️⭐️ (Excelente)</option>
-            <option value="4">⭐️⭐️⭐️⭐️ (Muy Bueno)</option>
-            <option value="3">⭐️⭐️⭐️ (Bueno)</option>
-            <option value="2">⭐️⭐️ (Regular)</option>
-            <option value="1">⭐️ (Malo)</option>
-          </select>
-          <button type="submit" class="btn-primary" style="width: auto; padding: 0 25px; font-size: 14px;">Marcar como Visitado</button>
+        
+        <div class="star-rating">
+          <input type="radio" id="star5" name="rating" value="5" required><label for="star5" class="fa-solid fa-star" title="5 estrellas"></label>
+          <input type="radio" id="star4" name="rating" value="4"><label for="star4" class="fa-solid fa-star" title="4 estrellas"></label>
+          <input type="radio" id="star3" name="rating" value="3"><label for="star3" class="fa-solid fa-star" title="3 estrellas"></label>
+          <input type="radio" id="star2" name="rating" value="2"><label for="star2" class="fa-solid fa-star" title="2 estrellas"></label>
+          <input type="radio" id="star1" name="rating" value="1"><label for="star1" class="fa-solid fa-star" title="1 estrella"></label>
         </div>
+
+        <button type="submit" class="btn-primary" style="width: auto; padding: 10px 25px; font-size: 14px;">Marcar como Visitado</button>
       </form>
     </div>
   </div>
@@ -181,12 +186,6 @@
 {% endif %}
 
 <div class="details-section">
-  <div class="details-content">
-    <h2>Por qué te lo recomendamos</h2>
-    <p>
-      Nuestro algoritmo cruzó tus preferencias de presupuesto y categorías con el historial de más de cientos de estudiantes. Al evaluar variables colectivas en tu entorno, este lugar destacó por su infraestructura ideal para grupos universitarios y escapadas de fin de semana.
-    </p>
-  </div>
   
   <div class="sidebar-info">
     <div class="info-box">
@@ -195,11 +194,14 @@
     </div>
     <div class="info-box">
       <h3>Popularidad Global</h3>
-      <p>⭐️ {% widthratio destino.popularity|default:0.95 1 5 %} / 5.0</p>
+      <div class="pop-badge">
+        <i class="fa-solid fa-star"></i>
+        {% widthratio destino.score|default:90 100 5 %} <span>/ 5</span>
+      </div>
     </div>
   </div>
   
-  <div style="grid-column: 1 / -1; margin-top: 1rem;">
+  <div style="margin-top: 1rem;">
     <h2 style="font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 16px;">Ubicación exacta</h2>
     <div id="mapa-utourist" style="height: 350px; width: 100%; border-radius: var(--radius-md); z-index: 1; border: 1px solid #2A2A2A;"></div>
   </div>
