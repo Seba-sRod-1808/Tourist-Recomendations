@@ -4,36 +4,53 @@ DESCRIPCIÓN: Implementa la lógica matemática para evaluar cada destino candid
 Calcula puntuaciones individuales basadas en contenido (categorías),
 colaboración (comportamiento de pares), demografía (carrera universitaria)
 y proximidad geográfica, combinándolas en una puntuación final normalizada.
+Incluye un factor de serendipia para evitar recomendaciones monótonas.
 """
 
 import math
+import random
 
 def score_place(student_profile: dict, place: dict) -> dict:
-    direct_matches = len(place['categories'].intersection(student_profile['liked_categories']))
-    visited_matches = len(place['categories'].intersection(student_profile['visited_categories']))
+    # 1. Content-based: Coincidencia de categorías (Normalizado a minúsculas)
+    liked_set = {c.lower() for c in student_profile['liked_categories']}
+    visited_set = {c.lower() for c in student_profile['visited_categories']}
+    place_cats = {c.lower() for c in place['categories']}
+    
+    direct_matches = len(place_cats.intersection(liked_set))
+    visited_matches = len(place_cats.intersection(visited_set))
 
     content_score = 0.0
-    if place['categories']:
-        content_score = (direct_matches * 1.0 + visited_matches * 0.7) / len(place['categories'])
-    content_score = min(content_score, 1.0)
-
+    if place_cats:
+        # Penalizamos si no hay ninguna coincidencia de interés explícito
+        content_score = (direct_matches * 1.0 + visited_matches * 0.5) / len(place_cats)
+    
+    # 2. Collaborative: Visitas de estudiantes similares
     collaborative_score = min(place['similar_students_visits'] / 5.0, 1.0)
+
+    # 3. Demographic: Afinidad por carrera
     demographic_score = 1.0 if place['career_affinity'] else 0.0
+
+    # 4. Popularidad y Geografía
     popularity_bonus = place['popularity']
     geo_bonus = score_geographic_proximity(place)
 
-    WEIGHT_CONTENT = 0.40
-    WEIGHT_COLLABORATIVE = 0.35
-    WEIGHT_DEMOGRAPHIC = 0.25
-    WEIGHT_POPULARITY = 0.05
-    WEIGHT_GEO = 0.05
+    # 5. Serendipity: Pequeña variación aleatoria para evitar monotonía (0-0.10)
+    serendipity_factor = random.uniform(0, 0.10)
+
+    # RECALIBRACIÓN DE PESOS: Prioridad a Carrera e Intereses
+    WEIGHT_CONTENT       = 0.45
+    WEIGHT_DEMOGRAPHIC   = 0.30
+    WEIGHT_COLLABORATIVE = 0.15
+    WEIGHT_POPULARITY    = 0.05
+    WEIGHT_GEO           = 0.05
 
     final_score = (
         (content_score * WEIGHT_CONTENT) +
-        (collaborative_score * WEIGHT_COLLABORATIVE) +
         (demographic_score * WEIGHT_DEMOGRAPHIC) +
+        (collaborative_score * WEIGHT_COLLABORATIVE) +
         (popularity_bonus * WEIGHT_POPULARITY) +
-        (geo_bonus * WEIGHT_GEO)
+        (geo_bonus * WEIGHT_GEO) +
+        serendipity_factor
     )
 
     final_score_scaled = min(final_score * 100, 100.0)
@@ -45,7 +62,8 @@ def score_place(student_profile: dict, place: dict) -> dict:
             "collaborative": round(collaborative_score, 2),
             "demographic": round(demographic_score, 2),
             "popularity": round(popularity_bonus, 2),
-            "geographic": round(geo_bonus, 2)
+            "geographic": round(geo_bonus, 2),
+            "serendipity": round(serendipity_factor, 2)
         }
     }
 
@@ -66,6 +84,9 @@ def score_geographic_proximity(place: dict) -> float:
 def calculate_jaccard_similarity(set_a: set, set_b: set) -> float:
     if not set_a or not set_b:
         return 0.0
-    intersection = len(set_a.intersection(set_b))
-    union = len(set_a.union(set_b))
+    # Normalizamos para la comparación
+    s_a = {str(x).lower() for x in set_a}
+    s_b = {str(x).lower() for x in set_b}
+    intersection = len(s_a.intersection(s_b))
+    union = len(s_a.union(s_b))
     return intersection / union

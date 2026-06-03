@@ -211,6 +211,20 @@ def destino_detalle_view(request, uid):
     })
 
 @login_required(login_url='login')
+def registrar_visita_view(request, uid):
+    if request.method == 'POST':
+        try:
+            rating = float(request.POST.get('rating', 5))
+            comment = request.POST.get('comment', 'Visitado desde la web')
+            neo4j.add_review(request.user.id, uid, rating, comment)
+            messages.success(request, '¡Felicidades por tu viaje! Tu historial se ha actualizado.')
+        except Exception as e:
+            print(f"Error al registrar visita: {e}")
+            messages.error(request, 'No se pudo registrar la visita.')
+    
+    return redirect('destino_detalle', uid=uid)
+
+@login_required(login_url='login')
 def eliminar_favorito_view(request, uid):
     if request.method == 'POST':
         try:

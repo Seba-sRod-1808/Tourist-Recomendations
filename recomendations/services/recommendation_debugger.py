@@ -25,6 +25,10 @@ class RecommendationDebugger(RecommendationService):
         print(f" [+] Perfil cargado: {profile['career']} | Presupuesto: Q{profile['budget']}")
         print(f" [+] Categorías gustadas: {profile['liked_categories']}")
         print(f" [+] Lugares visitados: {len(profile['visited_uids'])}")
+        
+        visited_count = len(profile["visited_uids"])
+        is_cold = visited_count < 3
+        print(f" [+] ESTADO: {'COLD START' if is_cold else 'RECOMENDACIÓN MADURA'} (Umbral: 3 visitas)")
 
         candidates = self._fetch_candidates(student_uid, profile["budget"])
         print(f" [+] Candidatos encontrados en Neo4j: {len(candidates)}")
@@ -37,11 +41,11 @@ class RecommendationDebugger(RecommendationService):
             scoring_result = score_place(profile, raw)
             comps = scoring_result["components"]
             
-            print(f"      - Contenido (Categorías): {comps['content_based']:.2f}")
-            print(f"      - Colaborativo (Peers):   {comps['collaborative']:.2f}")
-            print(f"      - Demográfico (Carrera):  {comps['demographic']:.2f}")
-            print(f"      - Geográfico (Distancia): {comps['geographic']:.2f}")
-            print(f"      - Popularidad (Global):   {comps['popularity']:.2f}")
+            print(f"      - Contenido: {comps['content_based']:.2f}")
+            print(f"      - Colaborativo:   {comps['collaborative']:.2f}")
+            print(f"      - Demográfico:  {comps['demographic']:.2f}")
+            print(f"      - Geográfico): {comps['geographic']:.2f}")
+            print(f"      - Popularidad:   {comps['popularity']:.2f}")
 
             rec_score = self._score_candidate(profile, raw, len(profile["visited_uids"]) < 3)
             print(f"      => SCORE FINAL CALCULADO: {rec_score.final_score}%")

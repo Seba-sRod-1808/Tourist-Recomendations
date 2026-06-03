@@ -132,6 +132,25 @@
         </form>
       {% endif %}
     </div>
+
+    <!-- Nueva Sección: Registrar Visita -->
+    <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+      <h3 style="font-family: 'Fraunces', serif; margin: 0 0 15px; font-size: 20px;">¿Ya visitaste este lugar?</h3>
+      <form action="{% url 'registrar_visita' destino.uid %}" method="POST">
+        {% csrf_token %}
+        <p style="font-size: 14px; color: #B4B2A9; margin-bottom: 15px;">Califica tu experiencia para mejorar tus recomendaciones:</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+          <select name="rating" style="background: #222; color: #fff; border: 1px solid #444; padding: 8px 12px; border-radius: 8px; font-family: inherit;">
+            <option value="5">⭐️⭐️⭐️⭐️⭐️ (Excelente)</option>
+            <option value="4">⭐️⭐️⭐️⭐️ (Muy Bueno)</option>
+            <option value="3">⭐️⭐️⭐️ (Bueno)</option>
+            <option value="2">⭐️⭐️ (Regular)</option>
+            <option value="1">⭐️ (Malo)</option>
+          </select>
+          <button type="submit" class="btn-primary" style="width: auto; padding: 0 25px; font-size: 14px;">Marcar como Visitado</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

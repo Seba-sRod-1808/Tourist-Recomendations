@@ -16,6 +16,7 @@ urlpatterns = [
     path('recuperar-contrasena/', views.recuperar_view, name='recuperar_contrasena'),
     path('destino/<str:uid>/', views.destino_detalle_view, name='destino_detalle'),
     path('destino/<str:uid>/guardar/', views.guardar_favorito_view, name='guardar_favorito'),
+    path('destino/<str:uid>/visitar/', views.registrar_visita_view, name='registrar_visita'),
     path('destino/<str:uid>/eliminar/', views.eliminar_favorito_view, name='eliminar_favorito'),
     path('favoritos/', views.favoritos_view, name='favoritos'),
 

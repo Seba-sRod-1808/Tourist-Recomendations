@@ -130,16 +130,19 @@
           <div class="form-group">
             <label>Carrera que Estudias</label>
             <select name="carrera">
-              <option value="Ingenieria" {% if prefs.carrera == 'Ingenieria' %}selected{% endif %}>Ingeniería (General)</option>
               <option value="Ingeniería En Sistemas" {% if prefs.carrera == 'Ingeniería En Sistemas' %}selected{% endif %}>Ingeniería en Sistemas / Informática</option>
-              <option value="Ingeniería Mecánica" {% if prefs.carrera == 'Ingeniería Mecánica' %}selected{% endif %}>Ingeniería Mecánica / Industrial</option>
-              <option value="Medicina" {% if prefs.carrera == 'Medicina' %}selected{% endif %}>Medicina / Salud</option>
+              <option value="Ingeniería Mecánica" {% if prefs.carrera == 'Ingeniería Mecánica' %}selected{% endif %}>Ingeniería Mecánica</option>
+              <option value="Ingeniería Química" {% if prefs.carrera == 'Ingeniería Química' %}selected{% endif %}>Ingeniería Química</option>
+              <option value="Ingeniería En Alimentos" {% if prefs.carrera == 'Ingeniería En Alimentos' %}selected{% endif %}>Ingeniería en Alimentos</option>
+              <option value="Ingeniería Civil" {% if prefs.carrera == 'Ingeniería Civil' %}selected{% endif %}>Ingeniería Civil</option>
+              <option value="Matemática Aplicada" {% if prefs.carrera == 'Matemática Aplicada' %}selected{% endif %}>Matemática / Física Aplicada</option>
+              <option value="Biología" {% if prefs.carrera == 'Biología' %}selected{% endif %}>Biología / Bioquímica</option>
+              <option value="Medicina" {% if prefs.carrera == 'Medicina' %}selected{% endif %}>Medicina / Nutrición</option>
               <option value="Psicología Clínica" {% if prefs.carrera == 'Psicología Clínica' %}selected{% endif %}>Psicología</option>
               <option value="Administracion" {% if prefs.carrera == 'Administracion' %}selected{% endif %}>Administración de Empresas</option>
               <option value="Marketing" {% if prefs.carrera == 'Marketing' %}selected{% endif %}>Marketing / Negocios</option>
-              <option value="Diseño Gráfico" {% if prefs.carrera == 'Diseño Gráfico' %}selected{% endif %}>Diseño Gráfico / Digital</option>
               <option value="Derecho" {% if prefs.carrera == 'Derecho' %}selected{% endif %}>Derecho / Jurídico</option>
-              <option value="Arquitectura" {% if prefs.carrera == 'Arquitectura' %}selected{% endif %}>Arquitectura</option>
+              <option value="Arquitectura" {% if prefs.carrera == 'Arquitectura' %}selected{% endif %}>Arquitectura / Diseño</option>
               <option value="Otra" {% if prefs.carrera == 'Otra' %}selected{% endif %}>Otra Carrera</option>
             </select>
           </div>
