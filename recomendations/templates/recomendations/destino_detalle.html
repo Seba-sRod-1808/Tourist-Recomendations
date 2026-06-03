@@ -49,7 +49,7 @@
     font-size: 15px; font-weight: 700; text-decoration: none; 
     display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; 
   }
-  .btn-primary { background: #fff; color: #000; }
+  .btn-primary { background: #fff; color: #000; border: none; cursor: pointer; }
   .btn-secondary { background: rgba(255, 255, 255, 0.15); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); cursor: pointer; }
 
   .fav-form { display: flex; width: 100%; margin: 0; }
@@ -63,11 +63,9 @@
   .info-box h3 { color: var(--gray-400); font-size: 11px; text-transform: uppercase; margin: 0 0 6px; letter-spacing: 1px; }
   .info-box p { font-size: 16px; margin: 0; font-weight: 500; }
 
-  /* Animación Corazón */
   @keyframes heartPop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
   .heart-pop { animation: heartPop 0.4s ease-out; color: #ef4444 !important; }
 
-  /* Toast */
   #toast {
     position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
     background: #fff; color: #111; padding: 12px 24px; border-radius: 30px;
@@ -75,6 +73,15 @@
     display: none; z-index: 1000; animation: slideUp 0.3s ease-out;
   }
   @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+  /* --- CSS MÁGICO PARA MAPA VERDE --- */
+  .leaflet-tile-pane {
+    filter: sepia(100%) hue-rotate(60deg) saturate(300%) brightness(0.8) contrast(1.1);
+  }
+  .leaflet-marker-icon {
+    /* Convierte el pin azul de Leaflet a color verde */
+    filter: hue-rotate(130deg) saturate(150%); 
+  }
 
   @media (min-width: 768px) {
     .btn-back { top: 30px; left: 40px; padding: 10px 20px; }
@@ -87,6 +94,8 @@
     .details-section { max-width: 1000px; margin: 40px auto; padding: 0 40px; grid-template-columns: 2fr 1fr; gap: 50px; }
   }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -114,7 +123,10 @@
     </p>
     
     <div class="actions">
-      <a href="#" class="btn-primary"><i class="fa-solid fa-map-location-dot"></i> Ver en Mapa</a>
+      
+      <a href="https://www.google.com/maps/search/?api=1&query={{ destino.name|urlencode }}%20Guatemala" target="_blank" class="btn-primary">
+        <i class="fa-solid fa-map-location-dot"></i> Ver en Google Maps
+      </a>
       
       {% if es_favorito %}
         <form action="{% url 'eliminar_favorito' destino.uid %}?next=detalle" method="POST" class="fav-form">
@@ -133,7 +145,6 @@
       {% endif %}
     </div>
 
-    <!-- Nueva Sección: Registrar Visita -->
     <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
       <h3 style="font-family: 'Fraunces', serif; margin: 0 0 15px; font-size: 20px;">¿Ya visitaste este lugar?</h3>
       <form action="{% url 'registrar_visita' destino.uid %}" method="POST">
@@ -184,10 +195,31 @@
     </div>
     <div class="info-box">
       <h3>Popularidad Global</h3>
-      <p>⭐️ 4.8 / 5.0</p>
+      <p>⭐️ {% widthratio destino.popularity|default:0.95 1 5 %} / 5.0</p>
     </div>
+  </div>
+  
+  <div style="grid-column: 1 / -1; margin-top: 1rem;">
+    <h2 style="font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 16px;">Ubicación exacta</h2>
+    <div id="mapa-utourist" style="height: 350px; width: 100%; border-radius: var(--radius-md); z-index: 1; border: 1px solid #2A2A2A;"></div>
   </div>
 </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var lat = parseFloat("{{ destino.lat|stringformat:'f' }}".replace(',', '.'));
+    var lng = parseFloat("{{ destino.lng|stringformat:'f' }}".replace(',', '.'));
+
+    var map = L.map('mapa-utourist').setView([lat, lng], 13);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap © CartoDB'
+    }).addTo(map);
+
+    var marker = L.marker([lat, lng]).addTo(map);
+    marker.bindPopup("<strong style='font-size:15px; color:#000;'>{{ destino.name }}</strong>").openPopup();
+  });
+</script>
 </body>
 </html>
