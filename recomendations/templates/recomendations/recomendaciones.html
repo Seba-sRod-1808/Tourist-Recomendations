@@ -14,13 +14,14 @@
   }
   
   * { box-sizing: border-box; }
-  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; transition: background 0.3s, color 0.3s; }
 
+  /* --- NAVEGACIÓN --- */
   nav {
     background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
     border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px;
     display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
+    position: sticky; top: 0; z-index: 100; transition: background 0.3s, border-color 0.3s;
   }
   
   .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--green-600); text-decoration: none; }
@@ -32,10 +33,9 @@
     transition: color 0.2s; display: flex; align-items: center; gap: 6px;
   }
   .explore-link:hover { color: var(--green-600); }
-  
-  .fav-link { color: var(--green-600); font-size: 22px; text-decoration: none; transition: transform 0.2s; }
-  .fav-link:hover { transform: scale(1.1); }
+  .explore-link i { font-size: 18px; }
 
+  /* --- MENU USUARIO --- */
   .nav-user-container { position: relative; display: inline-block; }
   .user-trigger { 
     display: flex; align-items: center; gap: 10px; cursor: pointer; 
@@ -46,14 +46,14 @@
   .avatar-circle { 
     width: 36px; height: 36px; border-radius: 50%; background: var(--green-600); 
     color: #fff; display: flex; align-items: center; justify-content: center; 
-    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; flex-shrink: 0;
+    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; flex-shrink: 0; overflow: hidden;
   }
   .user-name-text { font-size: 14px; font-weight: 500; color: var(--gray-900); }
   
   .dropdown-menu { 
     position: absolute; top: 110%; right: 0; background: #fff; width: 220px; 
     border-radius: 12px; border: 1px solid #E8E5DC; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-    display: none; flex-direction: column; padding: 8px; z-index: 200; 
+    display: none; flex-direction: column; padding: 8px; z-index: 200; transition: background 0.3s, border-color 0.3s;
   }
   .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -66,22 +66,24 @@
   .dropdown-divider { height: 1px; background: #E8E5DC; margin: 6px 0; }
   .logout-btn:hover { color: #D85A30; background: #FAECE7; }
 
+  /* --- HEADER Y ETIQUETAS --- */
   .page-header { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 1.5rem; }
-  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); }
-  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); transition: color 0.3s; }
+  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; transition: color 0.3s; }
 
   {% if prefs.categorias %}
   .prefs-bar {
     max-width: 1100px; margin: 0 auto 1rem; padding: 0 2rem;
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
-  .prefs-label { font-size: 13px; color: var(--gray-400); }
+  .prefs-label { font-size: 13px; color: var(--gray-400); transition: color 0.3s; }
   .pref-tag {
     background: var(--green-50); color: var(--green-600); border: 1px solid var(--green-100);
-    border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; text-transform: capitalize;
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; text-transform: capitalize; transition: all 0.3s;
   }
   {% endif %}
 
+  /* --- GRID Y TARJETAS --- */
   .grid {
     max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem;
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
@@ -89,7 +91,7 @@
 
   .card {
     background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
-    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s, background 0.3s, border-color 0.3s;
     display: flex; flex-direction: column; height: 100%;
   }
   .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(44,44,42,0.08); }
@@ -99,21 +101,21 @@
   .card-body { padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1; }
   
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; }
+  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; transition: color 0.3s; }
   .card-tag {
     background: var(--green-50); color: var(--green-600); border-radius: 20px;
-    padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-left: 8px;
+    padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-left: 8px; transition: all 0.3s;
   }
   
-  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 12px; }
-  .card-cost strong { color: var(--gray-900); font-size: 15px; }
+  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 12px; transition: color 0.3s; }
+  .card-cost strong { color: var(--gray-900); font-size: 15px; transition: color 0.3s; }
   
   .score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .score-bar-wrap { flex: 1; background: var(--gray-50); border-radius: 4px; height: 6px; overflow: hidden; }
+  .score-bar-wrap { flex: 1; background: var(--gray-50); border-radius: 4px; height: 6px; overflow: hidden; transition: background 0.3s; }
   .score-bar { height: 100%; background: linear-gradient(90deg, var(--green-100), var(--green-600)); border-radius: 4px; }
   .score-num { font-size: 13px; font-weight: 700; color: var(--green-600); white-space: nowrap; }
   
-  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; flex-grow: 1; }
+  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; flex-grow: 1; transition: color 0.3s; }
   
   .btn-card {
     display: block; width: 100%; text-align: center; background: var(--green-600); color: #fff;
@@ -122,7 +124,7 @@
   }
   .btn-card:hover { background: var(--green-800); }
 
-  /* Ajustes para diseño Responsive (Tablets y Teléfonos) */
+  /* --- RESPONSIVE --- */
   @media (max-width: 900px) { 
     .grid { grid-template-columns: repeat(2, 1fr); } 
   }
@@ -133,7 +135,7 @@
     .nav-actions { gap: 16px; }
     .explore-link span { display: none; }
     .user-name-text { display: none; }
-    .user-trigger { padding: 0; }
+    .user-trigger { padding: 0; border: none; }
     .user-trigger i.fa-chevron-down { display: none; }
     
     .page-header { padding: 2rem 1.2rem 1rem; }
@@ -142,9 +144,53 @@
     .grid { grid-template-columns: 1fr; padding: 0 1.2rem 3rem; } 
   }
 
-  body.dark-mode { background: #1A1A1A; color: #F4F1EB; }
-  body.dark-mode .card, body.dark-mode nav, body.dark-mode .dropdown-menu { background: #2C2C2A; border-color: #444; }
-  body.dark-mode .page-header h1, body.dark-mode .user-name-text { color: #F4F1EB; }
+  /* =========================================
+     CORRECCIÓN TOTAL MODO OSCURO
+     ========================================= */
+  body.dark-mode { background: #18181B; color: #F4F1EB; }
+  
+  /* Fondos oscuros */
+  body.dark-mode nav, 
+  body.dark-mode .dropdown-menu, 
+  body.dark-mode .card { 
+    background: #27272A; border-color: #3F3F46; 
+  }
+  
+  /* Textos principales blancos */
+  body.dark-mode .page-header h1, 
+  body.dark-mode .user-name-text, 
+  body.dark-mode .card-name, 
+  body.dark-mode .card-cost strong { 
+    color: #F4F1EB; 
+  }
+  
+  /* Textos secundarios gris claro */
+  body.dark-mode .explore-link, 
+  body.dark-mode .dropdown-item, 
+  body.dark-mode .page-header p, 
+  body.dark-mode .card-cost, 
+  body.dark-mode .card-reason,
+  body.dark-mode .prefs-label { 
+    color: #A1A1AA; 
+  }
+  
+  /* Efectos hover */
+  body.dark-mode .explore-link:hover, 
+  body.dark-mode .dropdown-item:hover { 
+    color: var(--green-100); background: rgba(255,255,255,0.05); 
+  }
+  body.dark-mode .user-trigger:hover { 
+    background: #3F3F46; border-color: #52525B; 
+  }
+  body.dark-mode .dropdown-divider { 
+    background: #3F3F46; 
+  }
+  body.dark-mode .score-bar-wrap { 
+    background: #3F3F46; 
+  }
+  body.dark-mode .pref-tag, body.dark-mode .card-tag { 
+    background: rgba(59,109,17,0.2); border-color: var(--green-600); color: var(--green-100); 
+  }
 </style>
 </head>
 <body>
@@ -155,25 +201,32 @@
   <div class="nav-actions">
     
     <a href="{% url 'explorar' %}" class="explore-link" title="Explorar todos los destinos">
-      <i class="fa-solid fa-compass" style="font-size: 18px;"></i>
+      <i class="fa-solid fa-compass"></i>
       <span>Explorar</span>
     </a>
 
-    <a href="{% url 'favoritos' %}" class="fav-link" title="Mis Favoritos">
-      <i class="fa-solid fa-heart"></i>
+    <!-- Botón de favoritos corregido -->
+    <a href="{% url 'favoritos' %}" class="explore-link" title="Mis Favoritos">
+      <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
+      <span>Favoritos</span>
     </a>
 
     <div class="nav-user-container">
       <div class="user-trigger" onclick="toggleMenu()">
-        <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+        <div class="avatar-circle">
+          {% if request.session.foto_perfil_url %}
+            <img src="{{ request.session.foto_perfil_url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+          {% else %}
+            {{ user_name|make_list|first|upper }}
+          {% endif %}
+        </div>
         <span class="user-name-text">Hola, {{ user_name }}</span>
         <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
       </div>
 
+      <!-- Menú limpio -->
       <div class="dropdown-menu" id="userMenu">
         <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-        <a href="{% url 'favoritos' %}" class="dropdown-item"><i class="fa-solid fa-heart"></i> Mis Favoritos</a>
-        <a href="{% url 'explorar' %}" class="dropdown-item"><i class="fa-solid fa-compass"></i> Explorar Destinos</a>
         <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
         <div class="dropdown-divider"></div>
         <a href="{% url 'logout' %}" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
@@ -202,6 +255,18 @@
   
   function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
+  // Cargar preferencia de tema oscuro
+  window.onload = function() {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
   }
 
   window.onclick = function(event) {

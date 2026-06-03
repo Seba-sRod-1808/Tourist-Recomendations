@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-
+from django.core.files.storage import FileSystemStorage
 from recomendations.queries import queries as neo4j
 from recomendations.services.recomendation_service import RecommendationService
 from recomendations.services.recommendation_debugger import RecommendationDebugger
@@ -319,3 +319,17 @@ def favoritos_view(request):
         'current_sort': sort_by
     }
     return render(request, 'recomendations/favoritos.html', context)
+
+@login_required(login_url='login')
+def subir_foto_view(request):
+    if request.method == 'POST' and request.FILES.get('foto_perfil'):
+        foto = request.FILES['foto_perfil']
+        fs = FileSystemStorage()
+        # Guarda la foto con el ID del usuario para no sobreescribir la de otros
+        filename = fs.save(f'perfil_{request.user.id}.jpg', foto)
+        uploaded_file_url = fs.url(filename)
+
+        request.session['foto_perfil_url'] = uploaded_file_url
+        messages.success(request, '¡Foto de perfil actualizada correctamente!')
+        
+    return redirect('perfil')

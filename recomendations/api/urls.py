@@ -10,7 +10,7 @@ urlpatterns = [
     path('onboarding/', views.onboarding_view, name='onboarding'),
     path('home/', views.mostrar_recomendaciones, name='recommendations'),
     path('perfil/', views.perfil_view, name='perfil'),
-    path('destino/<str:uid>/', views.destino_detalle_view, name='destino_detalle'),
+    path('perfil/subir-foto/', views.subir_foto_view, name='subir_foto'), 
     path('explorar/', views.explorar_view, name='explorar'),
     path('mis-viajes/', views.mis_viajes_view, name='mis_viajes'),
     path('recuperar-contrasena/', views.recuperar_view, name='recuperar_contrasena'),
@@ -25,4 +25,3 @@ urlpatterns = [
     path('api/recommendations/review/', api_views.submit_review_api, name='api_submit_review'),
     path('api/recommendations/explain/', api_views.explain_recommendation_api, name='api_explain_recommendation'),
 ]
-

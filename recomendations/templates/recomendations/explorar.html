@@ -14,14 +14,14 @@
   }
   
   * { box-sizing: border-box; }
-  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F4F1EB; color: var(--gray-900); margin: 0; transition: background 0.3s, color 0.3s; }
 
   /* --- NAVEGACIÓN --- */
   nav {
     background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
     border-bottom: 1px solid #E8E5DC; padding: 0 2rem; height: 64px;
     display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
+    position: sticky; top: 0; z-index: 100; transition: background 0.3s, border-color 0.3s;
   }
   .nav-brand { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--green-600); text-decoration: none; }
   
@@ -32,9 +32,7 @@
     transition: color 0.2s; display: flex; align-items: center; gap: 6px;
   }
   .nav-link:hover { color: var(--green-600); }
-  
-  .fav-link { color: var(--green-600); font-size: 22px; text-decoration: none; transition: transform 0.2s; }
-  .fav-link:hover { transform: scale(1.1); }
+  .nav-link i { font-size: 18px; }
 
   /* --- MENU USUARIO --- */
   .nav-user-container { position: relative; display: inline-block; }
@@ -47,14 +45,14 @@
   .avatar-circle { 
     width: 36px; height: 36px; border-radius: 50%; background: var(--green-600); 
     color: #fff; display: flex; align-items: center; justify-content: center; 
-    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; flex-shrink: 0;
+    font-weight: 700; font-size: 16px; font-family: 'Fraunces', serif; flex-shrink: 0; overflow: hidden;
   }
   .user-name-text { font-size: 14px; font-weight: 500; color: var(--gray-900); }
   
   .dropdown-menu { 
     position: absolute; top: 110%; right: 0; background: #fff; width: 220px; 
     border-radius: 12px; border: 1px solid #E8E5DC; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-    display: none; flex-direction: column; padding: 8px; z-index: 200; 
+    display: none; flex-direction: column; padding: 8px; z-index: 200; transition: background 0.3s, border-color 0.3s;
   }
   .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -68,18 +66,18 @@
 
   /* --- HEADER Y BUSCADOR --- */
   .page-header { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 1.5rem; }
-  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); }
-  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; margin: 0 0 6px; color: var(--gray-900); transition: color 0.3s; }
+  .page-header p { font-size: 15px; color: var(--gray-400); margin: 0; transition: color 0.3s; }
 
   .search-container { max-width: 1100px; margin: 0 auto 2rem; padding: 0 2rem; }
   .search-box {
     display: flex; align-items: center; background: #fff; border: 1px solid #E8E5DC;
-    border-radius: 30px; padding: 8px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border-radius: 30px; padding: 8px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: background 0.3s, border-color 0.3s;
   }
   .search-box i { color: var(--gray-400); font-size: 16px; margin-right: 12px; }
   .search-box input {
     flex-grow: 1; border: none; outline: none; font-size: 15px; font-family: 'DM Sans', sans-serif;
-    color: var(--gray-900); background: transparent; padding: 8px 0;
+    color: var(--gray-900); background: transparent; padding: 8px 0; transition: color 0.3s;
   }
   .search-box button {
     background: var(--green-600); color: #fff; border: none; padding: 8px 20px;
@@ -88,18 +86,14 @@
   .search-box button:hover { background: var(--green-800); }
 
   /* --- FILTROS (PILLS) --- */
-  .filters-bar {
-    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;
-  }
+  .filters-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
   .filter-btn {
     text-decoration: none; padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 500;
     border: 1px solid #D3D1C7; background: #fff; color: var(--gray-600); transition: all 0.2s;
     display: flex; align-items: center; gap: 6px;
   }
   .filter-btn:hover { border-color: var(--green-600); color: var(--green-600); }
-  .filter-btn.active {
-    background: var(--green-600); border-color: var(--green-600); color: #fff;
-  }
+  .filter-btn.active { background: var(--green-600); border-color: var(--green-600); color: #fff; }
 
   /* --- GRID Y TARJETAS --- */
   .grid {
@@ -108,21 +102,21 @@
   }
   .card {
     background: #fff; border-radius: var(--radius-lg); border: 1px solid #E8E5DC;
-    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+    overflow: hidden; transition: transform 0.25s, box-shadow 0.25s, background 0.3s, border-color 0.3s;
     display: flex; flex-direction: column; height: 100%;
   }
   .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(44,44,42,0.08); }
   .card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
   .card-body { padding: 1.25rem; display: flex; flex-direction: column; flex-grow: 1; }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; }
+  .card-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--gray-900); margin: 0; line-height: 1.2; transition: color 0.3s; }
   .card-tag {
     background: var(--green-50); color: var(--green-600); border-radius: 20px;
     padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-left: 8px;
   }
-  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 16px; }
-  .card-cost strong { color: var(--gray-900); font-size: 15px; }
-  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; flex-grow: 1; }
+  .card-cost { font-size: 13px; color: var(--gray-400); margin: 0 0 16px; transition: color 0.3s; }
+  .card-cost strong { color: var(--gray-900); font-size: 15px; transition: color 0.3s; }
+  .card-reason { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; margin: 0 0 14px; flex-grow: 1; transition: color 0.3s; }
   .btn-card {
     display: block; width: 100%; text-align: center; background: var(--green-600); color: #fff;
     border: none; padding: 10px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
@@ -136,7 +130,7 @@
     nav { padding: 0 1.2rem; }
     .nav-brand { font-size: 18px; }
     .nav-actions { gap: 16px; }
-    .nav-link span { display: none; } /* Oculta texto en móviles, deja icono */
+    .nav-link span { display: none; }
     .user-name-text { display: none; }
     .user-trigger { padding: 0; border: none; }
     .user-trigger i.fa-chevron-down { display: none; }
@@ -145,6 +139,60 @@
     .page-header h1 { font-size: 28px; }
     .search-container { padding: 0 1.2rem; }
     .grid { grid-template-columns: 1fr; padding: 0 1.2rem 3rem; } 
+  }
+
+  /* =========================================
+     CORRECCIÓN TOTAL MODO OSCURO
+     ========================================= */
+  body.dark-mode { background: #18181B; color: #F4F1EB; }
+  
+  /* Fondos oscuros para contenedores blancos */
+  body.dark-mode nav, 
+  body.dark-mode .dropdown-menu, 
+  body.dark-mode .card, 
+  body.dark-mode .search-box, 
+  body.dark-mode .filter-btn { 
+    background: #27272A; border-color: #3F3F46; 
+  }
+  
+  /* Textos principales blancos */
+  body.dark-mode .page-header h1, 
+  body.dark-mode .user-name-text, 
+  body.dark-mode .card-name, 
+  body.dark-mode .card-cost strong, 
+  body.dark-mode .search-box input { 
+    color: #F4F1EB; 
+  }
+  
+  /* Textos secundarios gris claro */
+  body.dark-mode .nav-link, 
+  body.dark-mode .dropdown-item, 
+  body.dark-mode .page-header p, 
+  body.dark-mode .card-cost, 
+  body.dark-mode .card-reason, 
+  body.dark-mode .search-box i,
+  body.dark-mode .filter-btn { 
+    color: #A1A1AA; 
+  }
+  
+  /* Hover effects en modo oscuro */
+  body.dark-mode .nav-link:hover, 
+  body.dark-mode .dropdown-item:hover { 
+    color: var(--green-100); background: rgba(255,255,255,0.05); 
+  }
+  body.dark-mode .filter-btn:hover { 
+    color: var(--green-100); border-color: var(--green-100); 
+  }
+  
+  /* Estado activo de botones y menú de usuario */
+  body.dark-mode .filter-btn.active { 
+    background: var(--green-600); color: #fff; border-color: var(--green-600); 
+  }
+  body.dark-mode .user-trigger:hover { 
+    background: #3F3F46; border-color: #52525B; 
+  }
+  body.dark-mode .dropdown-divider { 
+    background: #3F3F46; 
   }
 </style>
 </head>
@@ -155,28 +203,36 @@
   
   <div class="nav-actions">
     
-    <a href="{% url 'recommendations' %}" class="nav-link" title="Mis Recomendaciones">
-      <i class="fa-solid fa-star"></i>
-      <span>Recomendaciones</span>
+    <a href="{% url 'explorar' %}" class="nav-link" title="Explorar Destinos">
+      <i class="fa-solid fa-compass"></i>
+      <span>Explorar</span>
     </a>
 
-    <a href="{% url 'favoritos' %}" class="fav-link" title="Mis Favoritos">
-      <i class="fa-solid fa-heart"></i>
+    <!-- El botón de favoritos corregido -->
+    <a href="{% url 'favoritos' %}" class="nav-link" title="Mis Favoritos">
+      <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
+      <span>Favoritos</span>
     </a>
 
     <div class="nav-user-container">
       <div class="user-trigger" onclick="toggleMenu()">
-        <div class="avatar-circle">{{ user_name|make_list|first|upper }}</div>
+        <div class="avatar-circle">
+          {% if request.session.foto_perfil_url %}
+            <img src="{{ request.session.foto_perfil_url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+          {% else %}
+            {{ user_name|make_list|first|upper }}
+          {% endif %}
+        </div>
         <span class="user-name-text">Hola, {{ user_name }}</span>
         <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--gray-400);"></i>
       </div>
 
+      <!-- Menú desplegable LIMPIO sin redundancias -->
       <div class="dropdown-menu" id="userMenu">
         <a href="{% url 'perfil' %}" class="dropdown-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-        <a href="{% url 'recommendations' %}" class="dropdown-item"><i class="fa-solid fa-star"></i> Mis Recomendaciones</a>
-        <a href="{% url 'favoritos' %}" class="dropdown-item"><i class="fa-solid fa-heart"></i> Mis Favoritos</a>
+        <a href="#" class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i> Cambiar Tema</a>
         <div class="dropdown-divider"></div>
-        <a href="{% url 'logout' %}" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+        <a href="{% url 'logout' %}" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
       </div>
     </div>
   </div>
@@ -203,6 +259,23 @@
       if (menu && menu.classList.contains('active')) menu.classList.remove('active');
     }
   }
+
+  // Lógica para guardar el modo oscuro en el navegador
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
+  // Al cargar la página, revisa si tenías el tema oscuro activado
+  window.onload = function() {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+  }
 </script>
 
 <div class="page-header">
@@ -211,9 +284,7 @@
 </div>
 
 <div class="search-container">
-  
   <form method="GET" action="{% url 'explorar' %}">
-    
     <div class="filters-bar">
       <a href="{% url 'explorar' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="filter-btn {% if not categoria_actual %}active{% endif %}">
         Todos
@@ -230,6 +301,9 @@
       <a href="{% url 'explorar' %}?categoria=Playa{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Playa' %}active{% endif %}">
         ⛱️ Playas
       </a>
+      <a href="{% url 'explorar' %}?categoria=Gastronomia{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="filter-btn {% if categoria_actual == 'Gastronomia' %}active{% endif %}">
+        🍔 Gastronomía
+      </a>
     </div>
 
     <div class="search-box">
@@ -241,7 +315,6 @@
       <input type="text" name="q" placeholder="Buscar por nombre..." value="{{ request.GET.q }}">
       <button type="submit">Buscar</button>
     </div>
-
   </form>
 </div>
 
