@@ -1,0 +1,689 @@
+GUION — UTOURIST · PRESENTACION FINAL DSA
+Duracion: 45 minutos | 4 presentadores | UVG 2026
+
+Distribucion de presentadores:
+  - Marco     -> Secciones 1 y 2 (Contexto + Grafos)
+  - Fabricio  -> Seccion 3A (Content-Based + Collaborative)
+  - Mauricio  -> Seccion 3B (Hybrid + Cold Start + Complejidad)
+  - Sebastian -> Seccion 4 (Implementacion + Demo + Conclusiones)
+
+==============================================================================
+SLIDE 1 — PORTADA (1 min) · Marco
+==============================================================================
+
+[Pararse al frente, esperar silencio, comenzar con seguridad.]
+
+"Buenos dias. Somos el equipo de UTourist. A lo largo de este semestre
+trabajamos en un problema que todos conocemos: a donde ir de viaje con un
+presupuesto de estudiante universitario?
+
+Hoy les vamos a presentar como resolvemos ese problema usando grafos, Neo4j
+y un algoritmo hibrido de recomendaciones que fue el eje central de nuestro
+trabajo en Algoritmos y Estructuras de Datos.
+
+Vamos a ser concretos: les vamos a mostrar el codigo, la matematica detras
+del algoritmo y como todo conecta."
+
+==============================================================================
+SLIDE 2 — AGENDA (1 min) · Marco
+==============================================================================
+
+"La presentacion tiene cuatro bloques. Empezamos con el contexto del problema,
+luego entramos a la base de datos en grafo, despues el nucleo tecnico — los
+algoritmos — y cerramos con implementacion y demo.
+
+Son 45 minutos. Tenemos tiempo para preguntas al final."
+
+==============================================================================
+SLIDE 3 — EL PROBLEMA (2 min) · Marco
+==============================================================================
+
+"El problema que identificamos es especifico: un estudiante universitario
+guatemalteco quiere viajar, pero tiene restricciones reales.
+
+Primero, presupuesto. No es lo mismo un fin de semana para un estudiante de
+primer ano que para uno de quinto. El presupuesto varia mucho.
+
+Segundo, Guatemala tiene mas de 300 destinos turisticos documentados. Desde
+Tikal hasta el Paredon. La informacion esta dispersa.
+
+Tercero, las recomendaciones existentes son genericas. TripAdvisor te
+recomienda lo mismo a vos que a un turista europeo de 50 anos. No considera
+que sos estudiante de Ingenieria Civil, que tenes Q300 disponibles este fin
+de semana, y que ya visitaste Antigua.
+
+Cuarto, no existe ninguna plataforma orientada al perfil universitario
+guatemalteco.
+
+Eso es exactamente lo que UTourist resuelve."
+
+==============================================================================
+SLIDE 4 — LA SOLUCION (2 min) · Marco
+==============================================================================
+
+"UTourist es un sistema de recomendaciones turisticas con cuatro pilares.
+
+Personalizado: no recomendamos lo mismo a todos. Consideramos carrera,
+presupuesto e intereses.
+
+Basado en grafos: Neo4j nos permite modelar las relaciones entre usuarios
+y destinos de forma nativa. Mas adelante explico por que esto importa.
+
+Algoritmo hibrido: combinamos tres enfoques distintos. No usamos solo uno
+porque cada uno tiene debilidades que los otros compensan.
+
+Datos reales: 31 destinos guatemaltecos con coordenadas, costos y
+categorias reales."
+
+==============================================================================
+SLIDE 5 — STACK TECNOLOGICO (2 min) · Marco
+==============================================================================
+
+"El stack tecnico es limpio y justificado.
+
+Django nos da el framework web, autenticacion y sesiones. Es la capa que
+el usuario ve.
+
+Neo4j es la base de datos de grafos. La razon especifica de elegir Neo4j
+sobre PostgreSQL o MySQL la vemos en la siguiente slide.
+
+neomodel es el OGM — Object Graph Mapper — recomendado oficialmente por
+Neo4j. Sustituye a py2neo que ya esta en end-of-life. Nos permite definir
+nodos como clases Python con propiedades tipadas.
+
+django-neomodel es el puente entre el ciclo de vida de Django y neomodel.
+
+La version de neomodel que usamos es la 5.3, compatible con Neo4j 5.19."
+
+==============================================================================
+SLIDE 6 — SEPARADOR SECCION 2 (15 seg) · Fabricio
+==============================================================================
+
+[Fabricio toma el frente.]
+
+"Entramos a la parte de estructura de datos. Primero la pregunta fundamental."
+
+==============================================================================
+SLIDE 7 — POR QUE GRAFOS? (3 min) · Fabricio
+==============================================================================
+
+"Esta es la pregunta que mas nos hicieron durante el semestre: por que Neo4j
+y no simplemente PostgreSQL con varios JOINs?
+
+La respuesta es de complejidad algoritmica.
+
+En SQL, para encontrar que lugares visitaron personas con gustos similares a
+mi, necesitas hacer un JOIN de usuarios con visitas, cruzarlo con otro JOIN
+de categorias, filtrar por similitud... tipicamente 5 o mas tablas. La
+complejidad para encontrar usuarios similares es O(n²) — cuadratica sobre
+el numero de usuarios.
+
+En Neo4j, esa misma consulta es un patron de 4 nodos: usuario, lugar en
+comun, usuario similar, lugar candidato. La complejidad es O(k) donde k es
+el grado del nodo — el numero de conexiones directas. El grafo ya almacena
+las relaciones como estructura de primer nivel.
+
+Ademas, en grafos podemos poner propiedades en las aristas. La relacion
+VISITED tiene rating, timestamp y budget_spent. En SQL eso requeriria una
+tabla intermedia adicional.
+
+Para sistemas de recomendacion, los grafos no son solo una opcion — son la
+herramienta correcta para el problema."
+
+==============================================================================
+SLIDE 8 — NODOS DEL MODELO (2 min) · Fabricio
+==============================================================================
+
+"Nuestro modelo tiene 6 tipos de nodos.
+
+Student es el usuario central. Tiene su ID de Django, nombre y presupuesto.
+Importante: django_user_id es el puente entre el sistema de autenticacion
+de Django y el nodo en Neo4j.
+
+Place es un destino turistico. Tiene coordenadas reales para el calculo
+geografico, costo y popularidad que se actualiza con las calificaciones.
+
+Category agrupa destinos: cultura, naturaleza, aventura, gastronomia...
+
+Career es la carrera universitaria del estudiante. Este nodo es clave para
+el filtrado demografico.
+
+City agrupa destinos por ciudad geografica.
+
+Tag son etiquetas dinamicas: trending, barato, instagrammable. Su potencial
+es que se pueden actualizar programaticamente.
+
+Los nodos se definen con neomodel como clases Python, similar a los modelos
+de Django."
+
+==============================================================================
+SLIDE 9 — RELACIONES DEL MODELO (3 min) · Fabricio
+==============================================================================
+
+"Las relaciones son el nucleo del sistema. En un grafo relacional, las
+aristas son tan importantes como los nodos.
+
+VISITED conecta Student con Place. Tiene tres propiedades criticas: rating
+— de 1 a 5 — comment y budget_spent. Este ultimo nos permite refinar las
+recomendaciones por presupuesto real, no solo declarado.
+
+LIKES conecta Student con Category con un peso de 1 a 5. Es la preferencia
+declarada durante el onboarding.
+
+STUDIES conecta Student con Career. Sin propiedades, pero activa el
+filtrado demografico.
+
+HAS_CATEGORY clasifica un Place en categorias.
+
+PREFERS — esta es la relacion mas interesante para el algoritmo. Conecta
+Career directamente con Place con un peso. Significa que esta carrera tiene
+afinidad con este destino. Los estudiantes de Medicina tienden a ir a
+Fuentes Georginas; los de Ingenieria Civil, a sitios de construccion
+historica.
+
+NEAR conecta Place con Place con la distancia en kilometros. Solo creamos
+esta arista si la distancia es menor al umbral configurado.
+
+Estas ocho relaciones son las que hacen posibles los tres componentes del
+algoritmo."
+
+==============================================================================
+SLIDE 10 — DIAGRAMA DEL GRAFO (1 min) · Fabricio
+==============================================================================
+
+"Este es el grafo completo de forma visual. Pueden ver como Student esta en
+el centro conectando hacia Place, Category y Career.
+
+Place conecta hacia Category, Tag y City, y tiene auto-relaciones NEAR.
+
+Career tiene la relacion PREFERS directa hacia Place — ese es el shortcut
+demografico.
+
+La densidad de relaciones alrededor de Student y Place es lo que hace que
+el algoritmo tenga multiples senales para trabajar."
+
+==============================================================================
+SLIDE 11 — SEPARADOR SECCION 3 (15 seg) · Fabricio
+==============================================================================
+
+"Ahora entramos al nucleo tecnico: los algoritmos."
+
+==============================================================================
+SLIDE 12 — LANDSCAPE DE ALGORITMOS (2 min) · Fabricio
+==============================================================================
+
+"Durante el semestre investigamos siete tipos de algoritmos de recomendacion.
+
+Los marcados en verde son los que implementamos. Los dos marcados en rojo
+— PageRank y Community Detection — los descartamos como componentes
+primarios y quiero explicar por que.
+
+PageRank es brillante para ranking global de paginas web, pero produce
+relevancia global del grafo completo. Para recomendaciones personalizadas
+no sirve: le daria el mismo rank a un destino sin importar si encaja con
+vos o no.
+
+Community Detection agrupa nodos muy conectados. El problema es que asume
+que si perteneces a una comunidad, compartes todos sus gustos. Eso es
+demasiado grueso para recomendaciones individuales.
+
+Los cinco que implementamos se complementan entre si: Traversals para las
+consultas, Node Similarity para medir similitud entre usuarios, y los tres
+enfoques clasicos para los componentes del score."
+
+==============================================================================
+SLIDE 13 — COMPONENTE A: CONTENT-BASED (3 min) · Fabricio
+==============================================================================
+
+"El primer componente responde una pregunta simple: cuanto encajan las
+categorias de este destino con los gustos que el usuario declaro?
+
+El traversal en el grafo es de dos saltos:
+Student — LIKES — Category — HAS_CATEGORY — Place.
+
+La formula diferencia entre coincidencias directas — categorias que el
+usuario explicitamente declaro que le gustan — y coincidencias visitadas
+— categorias de lugares que ya visito antes. Las directas valen 1.0 y las
+visitadas valen 0.5 porque son senal implicita, no explicita.
+
+Normalizamos por el numero de categorias del lugar para que un lugar con
+muchas categorias no tenga ventaja injusta.
+
+En el ejemplo: Antigua tiene categorias cultura e historia. El estudiante
+declaro que le gusta cultura con peso 4. Hay una coincidencia directa. El
+score es 1 dividido 2 categorias = 0.50. Si el estudiante tambien hubiera
+visitado un lugar historico antes, sumaria 0.25 adicional.
+
+Este componente tiene peso 40% en el score final y se incrementa a 50%
+en cold start."
+
+==============================================================================
+SLIDE 14 — COMPONENTE B: COLLABORATIVE FILTERING (3 min) · Fabricio
+==============================================================================
+
+"El segundo componente es el mas sofisticado algoritmicamente. Responde:
+que lugares visitaron y valoraron bien estudiantes similares a mi, que yo
+aun no conozco?
+
+Se divide en dos pasos.
+
+Paso 1 — Node Similarity con Jaccard. Para medir que tan similares son dos
+estudiantes, calculamos el coeficiente de Jaccard entre sus conjuntos de
+lugares visitados. Jaccard es interseccion sobre union. Si dos estudiantes
+visitaron exactamente los mismos lugares, Jaccard = 1. Si no tienen nada en
+comun, Jaccard = 0. Solo consideramos estudiantes con Jaccard mayor a 0.10
+como similares.
+
+Paso 2 — Traversal ponderado. Para cada estudiante similar, miramos que
+lugares visitaron que yo no he visitado. El score colaborativo es la suma
+de — Jaccard multiplicado por el rating que dieron — dividido la suma de
+Jaccards. Es un promedio ponderado por similitud.
+
+La implementacion naive de esto en Python es O(n²) — para cada usuario
+comparar con todos los demas. Esto fue uno de nuestros desafios principales.
+La solucion fue reescribir la busqueda de peers dentro de un solo Cypher
+query usando la estructura del grafo, lo que lo convierte en O(grado del
+nodo).
+
+Este componente pesa 35% en modo normal y baja a 20% en cold start porque
+sin historial no hay Jaccard que calcular."
+
+==============================================================================
+SLIDE 15 — COMPONENTE C: DEMOGRAPHIC (2 min) · Mauricio
+==============================================================================
+
+[Mauricio toma el frente.]
+
+"El tercer componente es el mas directo en terminos de traversal de grafo:
+dos saltos, Student → Career → Place.
+
+Responde: este destino tiene afinidad con la carrera del estudiante?
+
+La relacion Career PREFERS Place tiene un peso. Ese peso se carga durante
+el setup del sistema con el management command setup_neo4j --seed.
+
+Por que es valioso en terminos de DSA? Porque es O(1) si existe la arista
+PREFERS. El grafo ya almacena esa informacion; no hay que calcularla en
+tiempo de query.
+
+Y lo mas importante para el sistema: funciona sin ningun historial del
+usuario. Un estudiante nuevo con solo su carrera registrada ya recibe
+recomendaciones relevantes. Esto resuelve el cold start total.
+
+El peso demografico es 25% del score final, tanto en modo normal como en
+cold start."
+
+==============================================================================
+SLIDE 16 — SISTEMA HIBRIDO · FORMULA FINAL (3 min) · Mauricio
+==============================================================================
+
+"Ahora conectamos los tres componentes.
+
+La formula final es una combinacion lineal ponderada:
+
+  score = 0.40 x content + 0.35 x collaborative + 0.25 x demographic
+        + 0.05 x geo_proximity + 0.05 x popularidad
+
+Por que estos pesos especificos? Los calibramos iterativamente con datos
+reales de encuesta.csv. Content tiene el mayor peso porque es la senal mas
+directa y confiable — el usuario declaro explicitamente que le gusta.
+Collaborative tiene el segundo mayor peso cuando hay historial porque la
+sabiduria colectiva de usuarios similares es muy poderosa.
+
+El geo bonus premia destinos cercanos a la Ciudad de Guatemala usando
+distancia euclidiana sobre coordenadas. La popularidad es un desempate
+entre destinos con score similar.
+
+Y hay un factor que no estaba en el plan original: serendipity. Le
+agregamos random.uniform(0, 0.10) al score. Sin esto, las recomendaciones
+se volvian monoton as — siempre los mismos tres destinos para el mismo
+perfil. El factor de aleatoriedad del 10% introduce variedad sin danar
+significativamente la relevancia.
+
+El score final se escala a [0, 100] con min(score x 100, 100.0).
+
+El sistema tambien genera una explicacion en texto: si el componente
+colaborativo supera 0.6, dice muchos estudiantes con tus mismos gustos
+visitaron este lugar. Esto hace el sistema explicable y aumenta la confianza
+del usuario."
+
+==============================================================================
+SLIDE 17 — COLD START (2 min) · Mauricio
+==============================================================================
+
+"El cold start es el problema clasico de cualquier sistema de recomendacion:
+que recomendas cuando no sabes nada del usuario?
+
+Tenemos tres estados.
+
+Estado 1 — usuario con historial: mas de 3 visitas registradas. Sistema
+completo con pesos normales:
+  Content 40%  |  Collaborative 35%  |  Demographic 25%
+
+Estado 2 — usuario nuevo con preferencias: declaro categorias en el
+onboarding pero aun no visito lugares. Reducimos el peso colaborativo de
+35% a 20% porque hay poco Jaccard disponible, y subimos content de 40%
+a 50%.
+  Content 50%  |  Collaborative 20%  |  Demographic 25%
+
+Estado 3 — cold start total: sin visitas ni likes. Solo usamos carrera y
+popularidad global. El sistema le pide al usuario que complete el
+onboarding.
+
+El umbral de 3 visitas es la constante _COLD_START_THRESHOLD = 3 en el
+codigo. Es configurable.
+
+Esta logica esta en el metodo recommend() de RecommendationService y se
+activa automaticamente."
+
+==============================================================================
+SLIDE 18 — COMPLEJIDAD ALGORITMICA (3 min) · Mauricio
+==============================================================================
+
+"Esta tabla es importante para la clase de DSA. Vamos componente por
+componente.
+
+Content-Based: O(|C|) donde C es el numero de categorias del lugar.
+Tipicamente 3-7 categorias. Trivialmente rapido.
+
+Collaborative naive en Python: O(|V|²) — cuadratico en el numero de
+usuarios. Inaceptable con cientos de usuarios.
+
+Collaborative en Cypher: O(|aristas de LIKES|). Neo4j ya tiene las
+conexiones almacenadas. La busqueda de peers similares es lineal sobre
+los vecinos del nodo, no sobre todos los usuarios.
+
+Demographic: O(1) si existe la arista PREFERS. El grafo responde en
+tiempo constante.
+
+Pipeline completo: O(|P| x |V|) donde P son los places candidatos y V
+los usuarios. Esto es el cuello de botella real.
+
+La optimizacion clave fue mover la logica de busqueda de peers al interior
+del Cypher de _fetch_candidates(). En lugar de traer todos los usuarios a
+Python y calcular Jaccard en memoria, le pedimos a Neo4j que haga esa
+agregacion nativamente. Eso redujo la carga de memoria en ordenes de
+magnitud.
+
+Para escalar aun mas, la siguiente mejora seria usar la Neo4j Graph Data
+Science Library con gds.nodeSimilarity(), que esta optimizado para grafos
+grandes."
+
+==============================================================================
+SLIDE 19 — SEPARADOR SECCION 4 (15 seg) · Sebastian
+==============================================================================
+
+[Sebastian toma el frente.]
+
+"Pasamos a implementacion y demo."
+
+==============================================================================
+SLIDE 20 — ARQUITECTURA DEL SISTEMA (2 min) · Sebastian
+==============================================================================
+
+"La arquitectura tiene seis capas bien separadas.
+
+Templates son las 12 vistas HTML: landing, registro, onboarding,
+recomendaciones, detalle de destino, explorar, favoritos, perfil y mas.
+
+Views son los controladores Django: manejan sesiones, autenticacion y
+coordinan los requests.
+
+Service Layer es donde vive el algoritmo: RecommendationService con el
+dataclass RecommendationScore.
+
+Scoring Layer son las funciones matematicas puras: score_place(),
+calculate_jaccard_similarity(), score_geographic_proximity().
+
+Query Layer son los Cypher queries que hablan con Neo4j:
+_fetch_student_profile(), _fetch_candidates(), add_review().
+
+Neo4j en la base: el grafo con los 6 nodos y 8 tipos de relaciones.
+
+Esta separacion de capas nos permitio testear las funciones de scoring
+de forma independiente y debugear el algoritmo sin tocar la UI."
+
+==============================================================================
+SLIDE 21 — CODIGO CLAVE: PIPELINE (2 min) · Sebastian
+==============================================================================
+
+"Este es el metodo recommend() — el punto de entrada del sistema.
+
+Primero obtiene el perfil del estudiante con una query Cypher. Si no hay
+perfil, cae al fallback de popularidad global.
+
+Detecta cold start comparando el numero de visitas contra el umbral de 3.
+
+Obtiene los candidatos — los places no visitados dentro del presupuesto —
+con otra query.
+
+Para cada candidato calcula el score con _score_candidate(), que
+internamente llama a score_place().
+
+Ordena por score descendente y retorna el top N enriquecido con imagen,
+tag y la razon de match en texto.
+
+Todo el pipeline corre en una sola llamada al metodo. El debug completo
+esta disponible en recommendation_debugger.py que imprime cada paso en
+consola."
+
+==============================================================================
+SLIDE 22 — CODIGO CLAVE: SCORING (2 min) · Sebastian
+==============================================================================
+
+"Este es score_place() en utils/scoring.py — la funcion matematica central.
+
+Los pesos estan como constantes al inicio. En la version de scoring.py los
+pesos son ligeramente diferentes a los de RecommendationService porque
+fueron calibrados en distintas iteraciones. La version definitiva vive en
+_score_candidate() del service.
+
+El factor de serendipity esta al final del calculo, antes de escalar. Es
+un random.uniform(0, 0.10) — maximo 10% de variacion aleatoria.
+
+El resultado final se escala multiplicando por 100 y saturando en 100.0."
+
+==============================================================================
+SLIDE 23 — DATOS Y SETUP (2 min) · Sebastian
+==============================================================================
+
+"Para levantar el sistema desde cero son tres comandos.
+
+  python manage.py migrate
+  Configura SQLite para la autenticacion de Django.
+
+  python manage.py setup_neo4j --clear --seed
+  Es el mas importante: limpia el grafo y lo puebla con los 31 destinos
+  guatemaltecos, sus categorias, ciudades, y las relaciones PREFERS entre
+  carreras y lugares con sus pesos.
+
+  python manage.py populate_simulated_users
+  Lee encuesta.csv — datos de una encuesta real que hicimos a estudiantes
+  de UVG — y crea nodos de Student en Neo4j con sus preferencias. Estos
+  usuarios sinteticos son los que nutren el Collaborative Filtering desde
+  el primer dia.
+
+Los 31 destinos tienen imagenes de Unsplash, costos reales en GTQ y
+coordenadas geograficas para el bonus de proximidad."
+
+==============================================================================
+SLIDE 24 — FLUJO DE USUARIO (1 min) · Sebastian
+==============================================================================
+
+"El flujo es lineal y disenado para alimentar el grafo rapidamente.
+
+  1. Registro
+  2. Onboarding: carrera, universidad, categorias y presupuesto
+  3. Recomendaciones inmediatas con el algoritmo hibrido
+  4. Interaccion: visitar, calificar, guardar favoritos
+  5. Mejora continua: cada nueva visita mejora el CF score
+
+Cada calificacion actualiza popularity del lugar directamente en Neo4j con
+una query Cypher que recalcula el promedio. Eso significa que las
+recomendaciones mejoran con el uso."
+
+==============================================================================
+SLIDE 25 — API REST (1 min) · Sebastian
+==============================================================================
+
+"Tenemos tres endpoints REST.
+
+  GET  /api/recommendations/
+  Retorna las recomendaciones con el score completo y los componentes
+  desglosados en JSON.
+
+  POST /api/recommendations/review/
+  Registra una visita con { place_uid, rating, comment }.
+  Actualiza popularity del lugar en Neo4j.
+
+  GET  /api/recommendations/explain/
+  Fue especialmente util para el desarrollo: retorna el desglose de score
+  para un destino especifico. Usamos esto para calibrar los pesos durante
+  el semestre."
+
+==============================================================================
+SLIDE 26 — DESAFIOS Y LECCIONES (3 min) · Sebastian
+==============================================================================
+
+"Cuatro desafios reales que enfrentamos.
+
+COLD START
+Problema:  No lo habiamos considerado al principio. Lo descubrimos cuando
+           un usuario nuevo sin historial recibia recomendaciones sin sentido.
+Solucion:  Sistema de umbrales y redistribucion de pesos automatica con
+           _COLD_START_THRESHOLD = 3.
+
+CALIBRACION DE PESOS
+Problema:  Los pesos iniciales de 40/35/25 producian recomendaciones
+           sesgadas hacia lugares de moda sin importar el perfil.
+Solucion:  Ajuste iterativo con datos reales de encuesta.csv hasta que el
+           top 10 tuviera sentido para diferentes perfiles.
+
+COMPLEJIDAD DEL CYPHER
+Problema:  La primera version calculaba Jaccard en Python comparando cada
+           usuario con todos los demas — O(n²). Con 200 usuarios simulados
+           tardaba varios segundos.
+Solucion:  Mover toda la logica de peers dentro de la query de candidatos.
+           Ahora Neo4j hace la agregacion nativa en milisegundos.
+
+SERENDIPITY
+Problema:  Sin variacion aleatoria, dos usuarios con el mismo perfil
+           recibian exactamente las mismas 10 recomendaciones en el mismo
+           orden.
+Solucion:  random.uniform(0, 0.10) como factor de exploracion. Maximo 10%
+           de variacion, no compromete la relevancia del top 5."
+
+==============================================================================
+SLIDE 27 — CONCLUSIONES (2 min) · Marco
+==============================================================================
+
+[Marco vuelve al frente para cerrar.]
+
+"Cuatro conclusiones del proyecto.
+
+Los grafos son la estructura correcta para recomendaciones.
+No es solo una decision tecnologica — es una decision algoritmica. Las
+relaciones como ciudadanos de primera clase, con propiedades y traversals
+nativos, hacen que el problema sea mas expresivo y eficiente.
+
+El algoritmo hibrido gano a cualquier enfoque individual.
+Content-based solo tiene baja diversidad. Collaborative solo falla con
+usuarios nuevos. Demographic solo es demasiado grueso. Los tres juntos
+se compensan.
+
+La complejidad computacional importa en produccion.
+Reescribir el O(n²) de Python a Cypher no fue un detalle de optimizacion
+— fue lo que hizo funcionar el sistema.
+
+La explicabilidad es un feature.
+Poder decirle al usuario te recomendamos esto porque estudiantes de tu
+carrera lo visitaron aumenta la confianza. No es solo un texto bonito —
+es parte del diseno del sistema."
+
+==============================================================================
+SLIDE 28 — Q&A
+==============================================================================
+
+[Todo el equipo al frente.]
+
+"Gracias por su atencion. Estamos disponibles para preguntas."
+
+==============================================================================
+PREGUNTAS FRECUENTES — PREPARACION PARA Q&A
+==============================================================================
+
+P: Por que neomodel y no usar Cypher directo?
+R: neomodel nos da type safety en las definiciones de nodos, signals de
+   Django, y validacion de relaciones. Para el algoritmo si usamos Cypher
+   crudo con db.cypher_query() donde necesitamos control fino.
+
+P: Como se actualiza la popularidad de un lugar?
+R: Con cada review POST, ejecutamos una query Cypher que calcula el promedio
+   de todos los ratings de ese Place y lo escribe en Place.popularity.
+   Es una actualizacion O(grado del nodo).
+
+P: Que pasaria si escalamos a miles de usuarios?
+R: El cuello de botella seria el Collaborative Filtering. La solucion es
+   mover ese calculo a Neo4j Graph Data Science Library con
+   gds.nodeSimilarity(), optimizado para grafos masivos y que puede correrse
+   en batch overnight.
+
+P: Por que el umbral de cold start es 3 y no otro numero?
+R: Es una constante configurable (_COLD_START_THRESHOLD = 3). El numero 3
+   lo elegimos porque con menos de 3 visitas el Jaccard tiene muy poco
+   overlap para ser significativo. Con datos mas ricos se podria subir
+   a 5 o 10.
+
+P: El serendipity no afecta la calidad de las recomendaciones?
+R: El maximo es 10% del score. Un destino con score 0.75 puede llegar
+   maximo a 0.85 por serendipity. Eso no lo va a superar a un destino con
+   score 0.90, pero si puede rotar el puesto 8-10 del ranking, que es donde
+   queremos variedad.
+
+P: Por que descartaron Community Detection?
+R: Community Detection agrupa nodos que comparten mas conexiones entre si
+   que con el resto del grafo. El problema es que asume que si perteneces
+   a una comunidad, compartes todos los gustos de esa comunidad. Para
+   turismo eso es demasiado grueso — dentro de la misma carrera hay personas
+   con gustos completamente distintos.
+
+P: Cual fue la decision tecnica mas dificil del proyecto?
+R: Mover el calculo de similitud entre usuarios del lado de Python al lado
+   de Neo4j. Requirio repensar como estructurar el Cypher de _fetch_candidates()
+   para que la agregacion de peers ocurriera dentro del grafo y no en memoria.
+   Fue la diferencia entre un sistema de segundos y uno de milisegundos.
+
+==============================================================================
+RESUMEN DE TIEMPOS
+==============================================================================
+
+  Slide  1     Portada                    1 min   Marco
+  Slide  2     Agenda                     1 min   Marco
+  Slide  3     El Problema                2 min   Marco
+  Slide  4     La Solucion                2 min   Marco
+  Slide  5     Stack Tecnologico          2 min   Marco
+  Slide  6     Separador Seccion 2       15 seg   Fabricio
+  Slide  7     Por que Grafos?            3 min   Fabricio
+  Slide  8     Nodos del Modelo           2 min   Fabricio
+  Slide  9     Relaciones del Modelo      3 min   Fabricio
+  Slide 10     Diagrama del Grafo         1 min   Fabricio
+  Slide 11     Separador Seccion 3       15 seg   Fabricio
+  Slide 12     Landscape de Algoritmos    2 min   Fabricio
+  Slide 13     Componente A Content       3 min   Fabricio
+  Slide 14     Componente B Collaborative 3 min   Fabricio
+  Slide 15     Componente C Demographic   2 min   Mauricio
+  Slide 16     Sistema Hibrido Formula    3 min   Mauricio
+  Slide 17     Cold Start                 2 min   Mauricio
+  Slide 18     Complejidad Algoritmica    3 min   Mauricio
+  Slide 19     Separador Seccion 4       15 seg   Sebastian
+  Slide 20     Arquitectura del Sistema   2 min   Sebastian
+  Slide 21     Codigo Pipeline            2 min   Sebastian
+  Slide 22     Codigo Scoring             2 min   Sebastian
+  Slide 23     Datos y Setup              2 min   Sebastian
+  Slide 24     Flujo de Usuario           1 min   Sebastian
+  Slide 25     API REST                   1 min   Sebastian
+  Slide 26     Desafios y Lecciones       3 min   Sebastian
+  Slide 27     Conclusiones               2 min   Marco
+  Slide 28     Q&A                    variable   Todos
+
+  TOTAL PRESENTACION: ~43 min + Q&A
